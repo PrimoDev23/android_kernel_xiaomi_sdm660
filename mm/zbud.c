@@ -195,6 +195,16 @@ static void zbud_zpool_unmap(void *pool, unsigned long handle)
 	zbud_unmap(pool, handle);
 }
 
+static unsigned long zbud_zpool_compact(void *pool)
+{
+	return 0;
+}
+
+static unsigned long zbud_zpool_get_compacted(void *pool)
+{
+       return 0;
+}
+
 static u64 zbud_zpool_total_size(void *pool)
 {
 	return zbud_get_pool_size(pool) * PAGE_SIZE;
@@ -210,6 +220,8 @@ static struct zpool_driver zbud_zpool_driver = {
 	.shrink =	zbud_zpool_shrink,
 	.map =		zbud_zpool_map,
 	.unmap =	zbud_zpool_unmap,
+	.compact =	zbud_zpool_compact,
+	.get_num_compacted =	zbud_zpool_get_compacted,
 	.total_size =	zbud_zpool_total_size,
 };
 
