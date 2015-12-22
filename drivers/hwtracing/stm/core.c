@@ -867,6 +867,11 @@ static int __stm_source_link_drop(struct stm_source_device *src,
 
 	lockdep_assert_held(&stm->link_mutex);
 
+	lockdep_assert_held(&stm->link_mutex);
+
+	if (src->data->unlink)
+		src->data->unlink(src->data);
+
 	/* for stm::link_list modification, we hold both mutex and spinlock */
 	spin_lock(&stm->link_lock);
 	spin_lock(&src->link_lock);
