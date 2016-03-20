@@ -968,6 +968,7 @@ config MSM_CACHE_M4M_ERP64_PANIC_ON_UE
          Say 'Y' here to cause kernel panic when uncorrectable cache/M4M errors
          are detected.
 
+<<<<<<< HEAD
 config QCOM_QDSS_BRIDGE
 	bool "Configure bridge driver for QTI/Qualcomm Technologies, Inc. MDM"
 	depends on MSM_MHI
@@ -982,5 +983,8 @@ config EXT_ANC
 	help
 	 This option enables support for anti-noise cnacellation
 	 on Sensor DSP.
+
+config STATE_NOTIFIER
+    bool "State Notifier"
 
 source "drivers/soc/qcom/memshare/Kconfig"
