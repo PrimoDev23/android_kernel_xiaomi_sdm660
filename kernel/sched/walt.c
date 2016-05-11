@@ -554,6 +554,13 @@ static int account_busy_for_task_demand(struct task_struct *p, int event)
 			 (event == PICK_NEXT_TASK || event == TASK_MIGRATE)))
 		return 0;
 
+	/*
+	 * The idle exit time is not accounted for the first task _picked_ up to
+	 * run on the idle CPU.
+	 */
+	if (event == PICK_NEXT_TASK && rq->curr == rq->idle)
+		return 0;
+
 	return 1;
 }
 
