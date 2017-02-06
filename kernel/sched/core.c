@@ -8634,7 +8634,7 @@ void sched_move_task(struct task_struct *tsk)
 
 	if (queued)
 		enqueue_task(rq, tsk, ENQUEUE_RESTORE | ENQUEUE_MOVE);
-	if (unlikely(running))
+        if (running)
 		tsk->sched_class->set_curr_task(rq);
 
 	task_rq_unlock(rq, tsk, &flags);
