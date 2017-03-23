@@ -3760,6 +3760,9 @@ void rt_mutex_setprio(struct task_struct *p, int prio)
 	}
 
 	trace_sched_pi_setprio(p, prio);
+
+	rt_mutex_update_top_task(p);
+
 	oldprio = p->prio;
 
 	if (oldprio == prio)
