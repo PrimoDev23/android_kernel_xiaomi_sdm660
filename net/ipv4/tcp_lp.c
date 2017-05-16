@@ -264,18 +264,19 @@ static void tcp_lp_pkts_acked(struct sock *sk, u32 num_acked, s32 rtt_us)
 {
 	struct tcp_sock *tp = tcp_sk(sk);
 	struct lp *lp = inet_csk_ca(sk);
+	u32 now = tcp_time_stamp;
 	u32 delta;
 
 	if (rtt_us > 0)
 		tcp_lp_rtt_sample(sk, rtt_us);
 
 	/* calc inference */
-	delta = tcp_time_stamp - tp->rx_opt.rcv_tsecr;
+	delta = now - tp->rx_opt.rcv_tsecr;
 	if ((s32)delta > 0)
 		lp->inference = 3 * delta;
 
 	/* test if within inference */
-	if (lp->last_drop && (tcp_time_stamp - lp->last_drop < lp->inference))
+	if (lp->last_drop && (now - lp->last_drop < lp->inference))
 		lp->flag |= LP_WITHIN_INF;
 	else
 		lp->flag &= ~LP_WITHIN_INF;
@@ -312,7 +313,7 @@ static void tcp_lp_pkts_acked(struct sock *sk, u32 num_acked, s32 rtt_us)
 		tp->snd_cwnd = max(tp->snd_cwnd >> 1U, 1U);
 
 	/* record this drop time */
-	lp->last_drop = tcp_time_stamp;
+	lp->last_drop = now;
 }
 
 static struct tcp_congestion_ops tcp_lp __read_mostly = {
