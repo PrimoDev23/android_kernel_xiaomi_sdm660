@@ -124,6 +124,17 @@ static struct snd_pcm_hw_constraint_list constraints_sample_rates = {
 	.mask = 0,
 };
 
+static unsigned long msm_pcm_fe_topology[MSM_FRONTEND_DAI_MAX][MAX_PCM_STREAMS];
+
+/* default value is DTS (i.e read from device tree) */
+static char const *msm_pcm_fe_topology_text[] = {
+	"DTS", "ULL", "ULL_PP", "LL" };
+
+static const struct soc_enum msm_pcm_fe_topology_enum[] = {
+	SOC_ENUM_SINGLE_EXT(ARRAY_SIZE(msm_pcm_fe_topology_text),
+			    msm_pcm_fe_topology_text),
+};
+
 static void msm_pcm_route_event_handler(enum msm_pcm_routing_event event,
 					void *priv_data)
 {
@@ -1083,6 +1094,28 @@ static int msm_pcm_hw_params(struct snd_pcm_substream *substream,
 		dir = IN;
 	else
 		dir = OUT;
+
+	pdata = (struct msm_plat_data *)
+		dev_get_drvdata(soc_prtd->platform->dev);
+	if (!pdata) {
+		ret = -EINVAL;
+		pr_err("%s: platform data not populated ret: %d\n", __func__,
+		       ret);
+		return ret;
+	}
+
+	topology = msm_pcm_fe_topology[fe_id][substream->stream];
+
+	if (!strcmp(msm_pcm_fe_topology_text[topology], "ULL_PP"))
+		pdata->perf_mode_set = ULL_POST_PROCESSING_PCM_MODE;
+	else if (!strcmp(msm_pcm_fe_topology_text[topology], "ULL"))
+		pdata->perf_mode_set = ULTRA_LOW_LATENCY_PCM_MODE;
+	else if (!strcmp(msm_pcm_fe_topology_text[topology], "LL"))
+		pdata->perf_mode_set = LOW_LATENCY_PCM_MODE;
+	else
+		/* use the default from the device tree */
+		pdata->perf_mode_set = pdata->perf_mode;
+
 	ret = q6asm_audio_client_buf_alloc_contiguous(dir,
 			prtd->audio_client,
 			(params_buffer_bytes(params) / params_periods(params)),
