@@ -933,6 +933,8 @@ struct mdss_panel_info {
 	/* HDR properties of display panel*/
 	struct mdss_panel_hdr_properties hdr_properties;
 
+	u32 err_detect_enabled;
+
 	/* esc clk recommended for the panel */
 	u32 esc_clk_rate_hz;
 };

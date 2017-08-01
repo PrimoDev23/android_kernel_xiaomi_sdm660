@@ -316,6 +316,22 @@ static void mdss_dsi_panel_bklt_dcs(struct mdss_dsi_ctrl_pdata *ctrl, int level)
 	mdss_dsi_cmdlist_put(ctrl, &cmdreq);
 }
 
+void mdss_dsi_err_detect_irq_control(struct mdss_dsi_ctrl_pdata *ctrl_pdata, bool enable)
+{
+	int irq;
+
+	if (!gpio_is_valid(ctrl_pdata->disp_err_detect_gpio))
+		  return;
+
+	irq = gpio_to_irq(ctrl_pdata->disp_err_detect_gpio);
+
+	if (enable)
+		enable_irq(irq);
+	else
+		disable_irq(irq);
+	pr_debug(" %s : enable(%d)\n", __func__, enable);
+}
+
 static int mdss_dsi_request_gpios(struct mdss_dsi_ctrl_pdata *ctrl_pdata)
 {
 	int rc = 0;
@@ -584,6 +600,8 @@ int mdss_dsi_panel_reset(struct mdss_panel_data *pdata, int enable)
 			gpio_set_value(ctrl_pdata->lcd_mode_sel_gpio, 0);
 			gpio_free(ctrl_pdata->lcd_mode_sel_gpio);
 		}
+		if (pinfo->err_detect_enabled)
+			mdss_dsi_err_detect_irq_control(ctrl_pdata, false);
 	}
 
 exit:
@@ -1082,6 +1100,8 @@ static int mdss_dsi_panel_on(struct mdss_panel_data *pdata)
 	/* Ensure low persistence mode is set as before */
 	mdss_dsi_panel_apply_display_setting(pdata, pinfo->persist_mode);
 
+	if (pinfo->err_detect_enabled)
+		mdss_dsi_err_detect_irq_control(ctrl, true);
 end:
 	pr_err("%s:-\n", __func__);
 	return ret;
@@ -2162,6 +2182,10 @@ static void mdss_dsi_parse_esd_params(struct device_node *np,
 
 	pinfo->esd_check_enabled = of_property_read_bool(np,
 		"qcom,esd-check-enabled");
+
+	rc = of_property_read_u32(np, "qcom,err-detect-enabled", &tmp);
+	if (!rc)
+		pinfo->err_detect_enabled = tmp;
 
 	if (!pinfo->esd_check_enabled)
 		return;
