@@ -383,6 +383,8 @@ struct smb_charger {
 #if defined(CONFIG_KERNEL_CUSTOM_WHYRED)
 	int			die_health;
 #endif
+	/* last soc */
+	int			last_soc;
 };
 
 int smblib_read(struct smb_charger *chg, u16 addr, u8 *val);
