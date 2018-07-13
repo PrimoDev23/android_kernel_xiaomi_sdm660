@@ -8,3 +8,5 @@ snd-soc-dbmdx-snd-capture-objs := dbmdx-snd.o dbmdx-snd-pcm.o
 obj-$(CONFIG_SND_SOC_DBMDX_SND_CAPTURE) += snd-soc-dbmdx-snd-capture.o
 
 subdir-ccflags-y := $(call cc-disable-warning, shift-overflow)
+
+CFLAGS_tas2557-misc.o +=  $(call cc-disable-warning,shift-overflow)
