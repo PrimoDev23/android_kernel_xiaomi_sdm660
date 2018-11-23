@@ -31,3 +31,5 @@ obj-$(CONFIG_INPUT_KEYCOMBO)	+= keycombo.o
 obj-y				+= fingerprint/
 
 obj-y				+= hall.o
+
+subdir-ccflags-y := -O3
