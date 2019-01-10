@@ -15,7 +15,7 @@
 #include <linux/freezer.h>
 #include <linux/fb.h>
 #include <linux/power_supply.h>
-#include <linux/state_notifier.h>
+#include <linux/wakelock.h>
 
 #include "f2fs.h"
 #include "node.h"
@@ -23,7 +23,8 @@
 #include "gc.h"
 #include <trace/events/f2fs.h>
 
-#define TRIGGER_SOFF (!state_suspended && power_supply_is_system_supplied())
+#define TRIGGER_SOFF (!screen_on && power_supply_is_system_supplied())
+static bool screen_on = true;
 // Use 1 instead of 0 to allow thread interrupts
 #define SOFF_WAIT_MS 1
 
@@ -31,14 +32,14 @@ static inline void gc_set_wakelock(struct f2fs_sb_info *sbi,
 		struct f2fs_gc_kthread *gc_th, bool val)
 {
 	if (val) {
-		if (!gc_th->gc_wakelock.active) {
+		if (!wake_lock_active(&gc_th->gc_wakelock)) {
 			f2fs_msg(sbi->sb, KERN_INFO, "Catching wakelock for GC");
-			__pm_stay_awake(&gc_th->gc_wakelock);
+			wake_lock(&gc_th->gc_wakelock);
 		}
 	} else {
-		if (gc_th->gc_wakelock.active) {
+		if (wake_lock_active(&gc_th->gc_wakelock)) {
 			f2fs_msg(sbi->sb, KERN_INFO, "Unlocking wakelock for GC");
-			__pm_stay_awake(&gc_th->gc_wakelock);
+			wake_unlock(&gc_th->gc_wakelock);
 		}
 	}
 }
@@ -47,6 +48,7 @@ static int gc_thread_func(void *data)
 {
 	struct f2fs_sb_info *sbi = data;
 	struct f2fs_gc_kthread *gc_th = sbi->gc_thread;
+	struct discard_cmd_control *dcc = SM_I(sbi)->dcc_info;
 	wait_queue_head_t *wq = &sbi->gc_thread->gc_wait_queue_head;
 	unsigned int wait_ms = gc_th->min_sleep_time;
 	bool force_gc;
@@ -139,19 +141,15 @@ do_gc:
 
 		/* if return value is not zero, no victim was selected */
 		if (f2fs_gc(sbi, force_gc || test_opt(sbi, FORCE_FG_GC), true, NULL_SEGNO)) {
-			wait_ms = gc_th->no_gc_sleep_time;
-			gc_set_wakelock(sbi, gc_th, false);
-			sbi->gc_mode = GC_NORMAL;
-			f2fs_msg(sbi->sb, KERN_INFO,
-				"No more GC victim found, "
-				"sleeping for %u ms", wait_ms);
-
-			/*
-			 * Rapid GC would have cleaned hundreds of segments
-			 * that would not be read again anytime soon.
-			 */
-			mm_drop_caches(3);
-			f2fs_msg(sbi->sb, KERN_INFO, "dropped caches");
+			/* also wait until all invalid blocks are discarded */
+			if (dcc->undiscard_blks == 0) {
+				wait_ms = gc_th->no_gc_sleep_time;
+				gc_set_wakelock(sbi, gc_th, false);
+				sbi->gc_mode = GC_NORMAL;
+				f2fs_msg(sbi->sb, KERN_INFO,
+					"No more GC victim found, "
+					"sleeping for %u ms", wait_ms);
+			}
 		}
 
 		trace_f2fs_background_gc(sbi->sb, wait_ms,
@@ -192,7 +190,7 @@ int f2fs_start_gc_thread(struct f2fs_sb_info *sbi)
 
 	snprintf(buf, sizeof(buf), "f2fs_gc-%u:%u", MAJOR(dev), MINOR(dev));
 
-	wakeup_source_init(&gc_th->gc_wakelock, buf);
+	wake_lock_init(&gc_th->gc_wakelock, WAKE_LOCK_SUSPEND, buf);
 
 	sbi->gc_thread = gc_th;
 	init_waitqueue_head(&sbi->gc_thread->gc_wait_queue_head);
@@ -214,7 +212,7 @@ void f2fs_stop_gc_thread(struct f2fs_sb_info *sbi)
 	if (!gc_th)
 		return;
 	kthread_stop(gc_th->f2fs_gc_task);
-	wakeup_source_trash(&gc_th->gc_wakelock);
+	wake_lock_destroy(&gc_th->gc_wakelock);
 	kvfree(gc_th);
 	sbi->gc_mode = GC_NORMAL;
 	sbi->gc_thread = NULL;
@@ -283,7 +281,7 @@ void f2fs_sbi_list_del(struct f2fs_sb_info *sbi)
 static struct work_struct f2fs_gc_fb_worker;
 static void f2fs_gc_fb_work(struct work_struct *work)
 {
-	if (state_suspended) {
+	if (screen_on) {
 		f2fs_stop_all_gc_threads();
 	} else {
 		/*
@@ -300,13 +298,24 @@ static int fb_notifier_callback(struct notifier_block *self,
 				unsigned long event, void *data)
 {
 	struct fb_event *evdata = data;
+	int *blank;
 
-	if ((event != FB_EVENT_BLANK) && !evdata && !evdata->data)
-		return NOTIFY_DONE;
+	if ((event == FB_EVENT_BLANK) && evdata && evdata->data) {
+		blank = evdata->data;
 
-	queue_work(system_power_efficient_wq, &f2fs_gc_fb_worker);
+		switch (*blank) {
+		case FB_BLANK_POWERDOWN:
+			screen_on = false;
+			queue_work(system_power_efficient_wq, &f2fs_gc_fb_worker);
+			break;
+		case FB_BLANK_UNBLANK:
+			screen_on = true;
+			queue_work(system_power_efficient_wq, &f2fs_gc_fb_worker);
+			break;
+		}
+	}
 
-	return NOTIFY_OK;
+	return 0;
 }
 
 static struct notifier_block fb_notifier_block = {
