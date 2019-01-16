@@ -2321,41 +2321,8 @@ static void qpnp_hap_td_enable(struct timed_output_dev *dev, int time_ms)
 		if (time_ms < 10)
 			time_ms = 10;
 
-#ifdef CONFIG_KERNEL_CUSTOM_TULIP
 	vmax_mv = hap->vmax_mv;
 	qpnp_hap_vmax_config(hap, vmax_mv, false);
-#else
-    if ((time_ms >= 30) || (time_ms != 11) || (time_ms != 15) || (time_ms != 20))
-	{
-	vmax_mv = 2204;
-	qpnp_hap_vmax_config(hap, vmax_mv, false);
-	hap->play_mode = QPNP_HAP_DIRECT;
-    }
-	else
-	{
-	hap->play_mode = QPNP_HAP_BUFFER;
-	qpnp_hap_parse_buffer_dt(hap);
-	    if (time_ms == 20)
-		{
-		qpnp_hap_buffer_config(hap, hap->wave_samp_three, true);
-		}else if (time_ms == 15)
-		{
-		qpnp_hap_buffer_config(hap, hap->wave_samp_two, true);
-		}else if (time_ms == 11)
-		{
-		qpnp_hap_buffer_config(hap, hap->wave_samp, true);
-		}
-
-	vmax_mv = 2204;
-	qpnp_hap_vmax_config(hap, vmax_mv, false);
-
-	hap->play_mode = QPNP_HAP_BUFFER;
-	hap->wave_shape = QPNP_HAP_WAV_SQUARE;
-	}
-	qpnp_hap_mod_enable(hap, false);
-	qpnp_hap_play_mode_config(hap);
-
-#endif
 
 		if (hap->auto_mode) {
 			rc = qpnp_hap_auto_mode_config(hap, time_ms);
