@@ -91,7 +91,8 @@ walt_dec_cumulative_runnable_avg(struct rq *rq,
 				 struct task_struct *p)
 {
 	rq->cumulative_runnable_avg -= p->ravg.demand;
-	BUG_ON((s64)rq->cumulative_runnable_avg < 0);
+	if ((s64)rq->cumulative_runnable_avg < 0)
+		rq->cumulative_runnable_avg = 0;
 
 	/*
 	 * on_rq will be 1 for sleeping tasks. So check if the task
@@ -109,9 +110,11 @@ fixup_cumulative_runnable_avg(struct rq *rq,
 	s64 task_load_delta = (s64)new_task_load - task_load(p);
 
 	rq->cumulative_runnable_avg += task_load_delta;
-	if ((s64)rq->cumulative_runnable_avg < 0)
-		panic("cra less than zero: tld: %lld, task_load(p) = %u\n",
+	if ((s64)rq->cumulative_runnable_avg < 0) {
+		rq->cumulative_runnable_avg = 0;
+		pr_info("cra less than zero: tld: %lld, task_load(p) = %u\n",
 			task_load_delta, task_load(p));
+	}
 
 	fixup_cum_window_demand(rq, task_load_delta);
 }
