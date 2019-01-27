@@ -521,12 +521,12 @@ static noinline int hiddev_ioctl_usage(struct hiddev *hiddev, unsigned int cmd, 
 
 		if (cmd == HIDIOCGCOLLECTIONINDEX) {
 			if (uref->usage_index >= field->maxusage)
-					goto inval;
-				uref->usage_index =
-					array_index_nospec(uref->usage_index,
-							   field->maxusage);
-			} else if (uref->usage_index >= field->report_count)
 				goto inval;
+			uref->usage_index =
+				array_index_nospec(uref->usage_index,
+						   field->maxusage);
+		} else if (uref->usage_index >= field->report_count)
+			goto inval;
 
 		if (cmd == HIDIOCGUSAGES || cmd == HIDIOCSUSAGES) {
 			if (uref_multi->num_values > HID_MAX_MULTI_USAGES ||

@@ -34,7 +34,6 @@
 #include <linux/bootmem.h>
 #include <linux/compaction.h>
 #include <linux/rmap.h>
-
 #include <asm/tlbflush.h>
 
 #include "internal.h"
