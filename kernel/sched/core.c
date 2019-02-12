@@ -2099,7 +2099,6 @@ try_to_wake_up(struct task_struct *p, unsigned int state, int wake_flags,
 	 */
 	smp_cond_acquire(!p->on_cpu);
 
-	cpufreq_update_util(rq, 0);
 	rq = cpu_rq(task_cpu(p));
 
 	raw_spin_lock(&rq->lock);
@@ -2177,7 +2176,6 @@ static void try_to_wake_up_local(struct task_struct *p)
 	trace_sched_waking(p);
 
 	if (!task_on_rq_queued(p)) {
-		cpufreq_update_util(rq, 0);
 		u64 wallclock = walt_ktime_clock();
 
 		walt_update_task_ravg(rq->curr, rq, TASK_UPDATE, wallclock, 0);
@@ -3084,8 +3082,6 @@ void scheduler_tick(void)
 	curr->sched_class->task_tick(rq, curr, 0);
 	update_cpu_load_active(rq);
 	calc_global_load_tick(rq);
-	cpufreq_update_util(rq, 0);
-	early_notif = early_detection_notify(rq, wallclock);
 	raw_spin_unlock(&rq->lock);
 
 	perf_event_task_tick();
@@ -3440,8 +3436,6 @@ static void __sched notrace __schedule(bool preempt)
 	BUG_ON(task_cpu(next) != cpu_of(rq));
 
 	if (likely(prev != next)) {
-		cpufreq_update_util(rq, 0);
-
 #ifdef CONFIG_SCHED_WALT
 		if (!prev->on_rq)
 			prev->last_sleep_ts = wallclock;
@@ -3454,7 +3448,6 @@ static void __sched notrace __schedule(bool preempt)
 		rq = context_switch(rq, prev, next); /* unlocks the rq */
 		cpu = cpu_of(rq);
 	} else {
-		cpufreq_update_util(rq, 0);
 		lockdep_unpin_lock(&rq->lock);
 		raw_spin_unlock_irq(&rq->lock);
 	}
