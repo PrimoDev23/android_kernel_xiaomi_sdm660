@@ -87,6 +87,7 @@ SCHED_FEAT(ENERGY_AWARE, false)
  */
 SCHED_FEAT(MIN_CAPACITY_CAPPING, false)
 
+/*
  * Apply schedtune boost hold to tasks of all sched classes.
  * If enabled, schedtune will hold the boost applied to a CPU
  * for 50ms regardless of task activation - if the task is
