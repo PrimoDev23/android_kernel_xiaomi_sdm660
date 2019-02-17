@@ -13,6 +13,8 @@
 #ifndef _CPU_INPUT_BOOST_H_
 #define _CPU_INPUT_BOOST_H_
 
+#include <linux/types.h>
+
 #ifdef CONFIG_CPU_INPUT_BOOST
 extern unsigned long last_input_jiffies;
 
