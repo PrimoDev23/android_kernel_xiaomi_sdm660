@@ -15,7 +15,6 @@
 #include <linux/module.h>
 #include <linux/state_notifier.h>
 
-#define DEFAULT_SUSPEND_DEFER_TIME 	1
 #define STATE_NOTIFIER			"state_notifier"
 
 /*
@@ -29,9 +28,7 @@ do {				\
 		pr_info(msg);	\
 } while (0)
 
-static unsigned int suspend_defer_time = DEFAULT_SUSPEND_DEFER_TIME;
-module_param_named(suspend_defer_time, suspend_defer_time, uint, 0664);
-static struct delayed_work suspend_work;
+static struct work_struct suspend_work;
 static struct workqueue_struct *susp_wq;
 struct work_struct resume_work;
 struct work_struct boost_work;
@@ -103,15 +100,13 @@ void state_suspend(void)
 
 	suspend_in_progress = true;
 
-	queue_delayed_work(susp_wq, &suspend_work,
-		msecs_to_jiffies(suspend_defer_time * 1000));
+	queue_work(susp_wq, &suspend_work);
 }
 
 void state_resume(void)
 {
 	dprintk("%s: resume called.\n", STATE_NOTIFIER);
-	if (delayed_work_pending(&suspend_work))
-		cancel_delayed_work_sync(&suspend_work);
+
 	suspend_in_progress = false;
 
 	if (state_suspended)
@@ -121,8 +116,6 @@ void state_resume(void)
 void state_boost(void)
 {
 	dprintk("%s: resume called.\n", STATE_NOTIFIER);
-	if (delayed_work_pending(&suspend_work))
-		cancel_delayed_work_sync(&suspend_work);
 	suspend_in_progress = false;
 
 	if (state_suspended)
@@ -138,7 +131,7 @@ static int __init state_notifier_init(void)
 	if (!susp_wq)
 		pr_err("State Notifier failed to allocate suspend workqueue\n");
 
-	INIT_DELAYED_WORK(&suspend_work, _suspend_work);
+	INIT_WORK(&suspend_work, _suspend_work);
 	INIT_WORK(&resume_work, _resume_work);
 	INIT_WORK(&boost_work, _boost_work);
 

@@ -482,13 +482,13 @@ static int mdss_dsi_panel_power_ctrl(struct mdss_panel_data *pdata,
 	switch (power_state) {
 	case MDSS_PANEL_POWER_OFF:
 	case MDSS_PANEL_POWER_LCD_DISABLED:
+#ifdef CONFIG_STATE_NOTIFIER
+		state_suspend();
+#endif
 		/* if LCD has not been disabled, then disable it now */
 		if ((pinfo->panel_power_state != MDSS_PANEL_POWER_LCD_DISABLED)
 		     && (pinfo->panel_power_state != MDSS_PANEL_POWER_OFF))
 			ret = mdss_dsi_panel_power_off(pdata);
-#ifdef CONFIG_STATE_NOTIFIER
-		state_suspend();
-#endif
 		break;
 	case MDSS_PANEL_POWER_ON:
 		if (mdss_dsi_is_panel_on_lp(pdata))
