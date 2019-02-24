@@ -123,8 +123,12 @@ irqreturn_t hw_vsync_handler(int irq, void *data)
 	else
 		pr_err("Pstatus data is NULL\n");
 
+<<<<<<< HEAD
 	if (!atomic_read(&ctrl_pdata->te_irq_ready))
 		atomic_inc(&ctrl_pdata->te_irq_ready);
+=======
+	schedule_work(&pstatus_data->irq_done);
+>>>>>>> 66b4a10... Revert "msm: mdss: Fix occasional panic on init due to race in DSI status driver"
 
 	return IRQ_HANDLED;
 }
@@ -270,6 +274,10 @@ int __init mdss_dsi_status_init(void)
 
 	pr_info("%s: DSI status check interval:%d\n", __func__,	interval);
 
+<<<<<<< HEAD
+=======
+	INIT_WORK(&pstatus_data->irq_done, disable_vsync_irq);
+>>>>>>> 66b4a10... Revert "msm: mdss: Fix occasional panic on init due to race in DSI status driver"
 	INIT_DELAYED_WORK(&pstatus_data->check_status, check_dsi_ctrl_status);
 
 	pr_debug("%s: DSI ctrl status work queue initialized\n", __func__);
