@@ -3441,7 +3441,6 @@ static int dwc3_msm_host_notifier(struct notifier_block *nb,
 	}
 
 	cpu_input_boost_kick_max(500);
-	devfreq_boost_kick_max(DEVFREQ_MSM_CPUBW, 500);
 
 	/*
 	 * For direct-attach devices, new udev is direct child of root hub
