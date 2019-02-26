@@ -48,7 +48,6 @@
 #include <linux/extcon.h>
 #include <linux/reset.h>
 #include <soc/qcom/boot_stats.h>
-#include <linux/cpu_input_boost.h>
 
 #include "power.h"
 #include "core.h"
@@ -3439,8 +3438,6 @@ static int dwc3_msm_host_notifier(struct notifier_block *nb,
 		if (!mdwc->usb_psy)
 			return NOTIFY_DONE;
 	}
-
-	cpu_input_boost_kick_max(500);
 
 	/*
 	 * For direct-attach devices, new udev is direct child of root hub
