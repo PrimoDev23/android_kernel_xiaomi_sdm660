@@ -29,6 +29,8 @@ static __read_mostly unsigned int input_boost_return_freq_hp = CONFIG_REMOVE_INP
 static __read_mostly unsigned int general_boost_freq_lp = CONFIG_GENERAL_BOOST_FREQ_LP;
 static __read_mostly unsigned int general_boost_freq_hp = CONFIG_GENERAL_BOOST_FREQ_PERF;
 static __read_mostly unsigned short input_boost_duration = CONFIG_INPUT_BOOST_DURATION_MS;
+static __read_mostly unsigned short general_boost_duration = CONFIG_GENERAL_BOOST_DURATION;
+static __read_mostly unsigned short max_boost_enabled = CONFIG_MAX_BOOST_ENABLED;
 static __read_mostly unsigned int frame_boost_timeout = CONFIG_FRAME_BOOST_TIMEOUT;
 
 module_param(input_boost_freq_lp, uint, 0644);
@@ -40,6 +42,8 @@ module_param(input_boost_return_freq_hp, uint, 0644);
 module_param(general_boost_freq_lp, uint, 0644);
 module_param(general_boost_freq_hp, uint, 0644);
 module_param(input_boost_duration, short, 0644);
+module_param(general_boost_duration, short, 0644);
+module_param(max_boost_enabled, short, 0644);
 module_param(frame_boost_timeout, uint, 0644);
 
 #ifdef CONFIG_DYNAMIC_STUNE_BOOST
@@ -210,6 +214,9 @@ void cpu_input_boost_kick_max(unsigned int duration_ms)
 {
 	struct boost_drv *b = boost_drv_g;
 
+	if (max_boost_enabled == 0)
+		return;
+
 	if (!b)
 		return;
 
@@ -240,7 +247,7 @@ static void __cpu_input_boost_kick_general(struct boost_drv *b,
 	queue_work(b->wq, &b->general_boost);
 }
 
-void cpu_input_boost_kick_general(unsigned int duration_ms)
+void cpu_input_boost_kick_general(void)
 {
 	struct boost_drv *b = boost_drv_g;
 	u32 state;
@@ -250,10 +257,13 @@ void cpu_input_boost_kick_general(unsigned int duration_ms)
 
 	state = get_boost_state(b);
 
+	if (general_boost_duration == 0)
+		return;
+
 	if (!(state & SCREEN_AWAKE))
 		return;
 
-	__cpu_input_boost_kick_general(b, duration_ms);
+	__cpu_input_boost_kick_general(b, general_boost_duration);
 }
 
 static void input_boost_worker(struct work_struct *work)
