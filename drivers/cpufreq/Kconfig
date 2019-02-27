@@ -379,6 +379,19 @@ config SUSPEND_STUNE_BOOST
 	  of process groups in order to bias core selection as well as CPU
 	  frequency selection. A value of 0 disables this functionality.
 
+config GENERAL_BOOST_DURATION
+	int "General Boost Duration"
+	default "80"
+	help
+	  General boost duration in milliseconds.
+
+config MAX_BOOST_ENABLED
+	int "Max Boost enabled"
+	default "1"
+	help
+	  Shows if Max Boost on app launches is enabled or not. 1 means enabled
+	  and 0 means disabled.
+
 endif
 
 comment "CPU frequency scaling drivers"
