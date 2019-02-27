@@ -396,10 +396,7 @@ static int fb_notifier_cb(struct notifier_block *nb,
 		set_boost_bit(b, SCREEN_AWAKE);
 
 		__cpu_input_boost_kick_max(b, CONFIG_WAKE_BOOST_DURATION_MS);
-		set_stune_boost("/", b->root_stune_default, NULL);
 	} else {
-		set_stune_boost("/", suspend_stune_boost,
-				&b->root_stune_default);
 		clear_boost_bit(b, SCREEN_AWAKE);
 		unboost_all_cpus(b);
 	}
