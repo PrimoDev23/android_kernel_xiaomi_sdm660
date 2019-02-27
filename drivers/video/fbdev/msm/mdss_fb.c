@@ -5593,7 +5593,7 @@ int mdss_fb_do_ioctl(struct fb_info *info, unsigned int cmd,
 	case MSMFB_ATOMIC_COMMIT:
 #ifdef CONFIG_CPU_INPUT_BOOST
 		if (cpu_input_boost_should_boost_frame()) {
-			cpu_input_boost_kick_general(80);
+			cpu_input_boost_kick_general();
 		}
 #endif
 		ret = mdss_fb_atomic_commit_ioctl(info, argp, file);
