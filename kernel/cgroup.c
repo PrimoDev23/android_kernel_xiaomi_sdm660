@@ -2782,7 +2782,8 @@ static ssize_t __cgroup_procs_write(struct kernfs_open_file *of, char *buf,
 	if (!ret && !threadgroup && !state_suspended &&
 		!memcmp(of->kn->parent->name, "top-app", sizeof("top-app")) &&
 		is_zygote_pid(tsk->parent->pid)) {
-		cpu_input_boost_kick_max(500);
+		//Its for testing since we think that boosting an existing process is not needed (opens fast enough)
+		//cpu_input_boost_kick_max(500);
 	}
 
 	put_task_struct(tsk);
