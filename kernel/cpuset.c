@@ -1796,15 +1796,12 @@ static char *cpuset_online_adjust(char *adj_cpulist, char *orig_cpulist)
 static ssize_t cpuset_write_cpus_resmask(struct kernfs_open_file *of,
 					 char *buf, size_t nbytes, loff_t off)
 {
-	char adj_cpulist[NR_CPUS * 2 + 1];
-	BUILD_BUG_ON(NR_CPUS >= 10);
+	char new_buf[SZ_16];
 
-	/*
-	 * Adjust the requested cpuset to only use online CPUs. This is useful
-	 * for the assumption that CPUs which aren't online right now will never
-	 * be online.
-	 */
-	buf = cpuset_online_adjust(adj_cpulist, strstrip(buf));
+	/* Restrict top-app to gold cluster */
+	if (!memcmp(of->kn->parent->name, "top-app", sizeof("top-app")) &&
+		cpumap_print_to_pagebuf(true, new_buf, cpu_perf_mask))
+		buf = new_buf;
 
 	return cpuset_write_resmask(of, buf, nbytes, off);
 }
