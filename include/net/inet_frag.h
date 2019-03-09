@@ -14,7 +14,7 @@ struct netns_frags {
 	struct rhashtable       rhashtable ____cacheline_aligned_in_smp;
 
 	/* Keep atomic mem on separate cachelines in structs that include it */
-	atomic_long_t		mem ____cacheline_aligned_in_smp;
+	atomic_t		mem ____cacheline_aligned_in_smp;
 };
 
 /**
