@@ -2291,7 +2291,7 @@ static void qpnp_timed_enable_worker(struct work_struct *work)
 					 td_work);
 	
 	ktime_t rem;
-	int rc, time_ms;
+	int rc, time_ms, vmax_mv;
 	bool state;
 
 	spin_lock(&hap->td_lock);
