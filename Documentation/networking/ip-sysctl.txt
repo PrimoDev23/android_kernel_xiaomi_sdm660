@@ -112,7 +112,7 @@ min_adv_mss - INTEGER
 
 IP Fragmentation:
 
-ipfrag_high_thresh - LONG INTEGER
+ipfrag_high_thresh - INTEGER
 	Maximum memory used to reassemble IP fragments.
 
 ipfrag_low_thresh - LONG INTEGER
