@@ -5279,46 +5279,55 @@ static int tasha_codec_enable_swr(struct snd_soc_dapm_widget *w,
 	return 0;
 }
 
-static int tasha_codec_update_hph_gain(struct snd_soc_dapm_widget *w,
-					u16 gain_update_reg, int gain)
+static int tasha_codec_config_ear_spkr_gain(struct snd_soc_codec *codec,
+					    int event, int gain_reg)
 {
-	struct snd_soc_codec *codec = w->codec;
-	u16 intp_reg, vol_reg;
-	int val = 0, vol_val = 0;
+	int comp_gain_offset, val;
+	struct tasha_priv *tasha = snd_soc_codec_get_drvdata(codec);
 
-	switch (gain_update_reg) {
-	case WCD9335_CDC_RX1_RX_VOL_CTL:
-		intp_reg = WCD9335_CDC_RX2_RX_PATH_CTL;
-		vol_reg = WCD9335_CDC_RX2_RX_VOL_CTL;
+	switch (tasha->spkr_mode) {
+	/* Compander gain in SPKR_MODE1 case is 12 dB */
+	case SPKR_MODE_1:
+		comp_gain_offset = -12;
 		break;
-	case WCD9335_CDC_RX2_RX_VOL_CTL:
-		intp_reg = WCD9335_CDC_RX1_RX_PATH_CTL;
-		vol_reg = WCD9335_CDC_RX1_RX_VOL_CTL;
-		break;
-	case WCD9335_CDC_RX1_RX_VOL_MIX_CTL:
-		intp_reg = WCD9335_CDC_RX2_RX_PATH_CTL;
-		vol_reg = WCD9335_CDC_RX2_RX_VOL_MIX_CTL;
-		break;
-	case WCD9335_CDC_RX2_RX_VOL_MIX_CTL:
-		intp_reg = WCD9335_CDC_RX1_RX_PATH_CTL;
-		vol_reg = WCD9335_CDC_RX1_RX_VOL_MIX_CTL;
-		break;
+	/* Default case compander gain is 15 dB */
 	default:
-		pr_debug("%s: not HPH gain reg = %x\n", __func__,
-			 gain_update_reg);
-		return 0;
+		comp_gain_offset = -15;
+		break;
 	}
-	/* Check left interpolator clk is ON for right and vice versa */
-	val = (snd_soc_read(codec, intp_reg) >> 5) & 0x1;
-	if (val) {
-		/* Read left gain value for right and vice versa */
-		vol_val = snd_soc_read(codec, vol_reg);
-		/* Update with max gain of left and right */
-		if (vol_val > gain) {
-			usleep_range(5000, 5500);
-			snd_soc_write(codec, gain_update_reg, vol_val);
+
+	switch (event) {
+	case SND_SOC_DAPM_POST_PMU:
+		/* Apply ear spkr gain only if compander is enabled */
+		if (tasha->comp_enabled[COMPANDER_7] &&
+		    (gain_reg == WCD9335_CDC_RX7_RX_VOL_CTL ||
+		     gain_reg == WCD9335_CDC_RX7_RX_VOL_MIX_CTL) &&
+		    (tasha->ear_spkr_gain != 0)) {
+			/* For example, val is -8(-12+5-1) for 4dB of gain */
+			val = comp_gain_offset + tasha->ear_spkr_gain - 1;
+			snd_soc_write(codec, gain_reg, val);
+
+			dev_dbg(codec->dev, "%s: RX7 Volume %d dB\n",
+				__func__, val);
 		}
+		break;
+	case SND_SOC_DAPM_POST_PMD:
+		/*
+		 * Reset RX7 volume to 0 dB if compander is enabled and
+		 * ear_spkr_gain is non-zero.
+		 */
+		if (tasha->comp_enabled[COMPANDER_7] &&
+		    (gain_reg == WCD9335_CDC_RX7_RX_VOL_CTL ||
+		     gain_reg == WCD9335_CDC_RX7_RX_VOL_MIX_CTL) &&
+		    (tasha->ear_spkr_gain != 0)) {
+			snd_soc_write(codec, gain_reg, 0x0);
+
+			dev_dbg(codec->dev, "%s: Reset RX7 Volume to 0 dB\n",
+				__func__);
+		}
+		break;
 	}
+
 	return 0;
 }
 
@@ -5389,8 +5398,7 @@ static int tasha_codec_enable_mix_path(struct snd_soc_dapm_widget *w,
 		val = snd_soc_read(codec, gain_reg);
 		val += offset_val;
 		snd_soc_write(codec, gain_reg, val);
-
-		tasha_codec_update_hph_gain(w, gain_reg, val);
+		tasha_codec_config_ear_spkr_gain(codec, event, gain_reg);
 		break;
 	case SND_SOC_DAPM_POST_PMD:
 		if ((tasha->spkr_gain_offset == RX_GAIN_OFFSET_M1P5_DB) &&
@@ -5618,8 +5626,7 @@ static int tasha_codec_enable_interpolator(struct snd_soc_dapm_widget *w,
 		val = snd_soc_read(codec, gain_reg);
 		val += offset_val;
 		snd_soc_write(codec, gain_reg, val);
-
-		tasha_codec_update_hph_gain(w, gain_reg, val);
+		tasha_codec_config_ear_spkr_gain(codec, event, gain_reg);
 		break;
 	case SND_SOC_DAPM_POST_PMD:
 		tasha_config_compander(codec, w->shift, event);
