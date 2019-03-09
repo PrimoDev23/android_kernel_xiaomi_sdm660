@@ -2454,3 +2454,4 @@ MODULE_LICENSE("GPL v2");
 
 arch_initcall(cpr_regulator_init);
 module_exit(cpr_regulator_exit);
+
