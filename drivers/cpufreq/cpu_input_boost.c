@@ -27,7 +27,6 @@ static __read_mostly unsigned int input_boost_freq_hp = CONFIG_INPUT_BOOST_FREQ_
 static __read_mostly unsigned int input_boost_return_freq_lp = CONFIG_REMOVE_INPUT_BOOST_FREQ_LP;
 static __read_mostly unsigned int input_boost_return_freq_hp = CONFIG_REMOVE_INPUT_BOOST_FREQ_PERF;
 static __read_mostly unsigned short input_boost_duration = CONFIG_INPUT_BOOST_DURATION_MS;
-static __read_mostly unsigned short general_boost_duration = CONFIG_GENERAL_BOOST_DURATION;
 static __read_mostly unsigned short max_boost_enabled = CONFIG_MAX_BOOST_ENABLED;
 static __read_mostly int frame_boost_timeout = CONFIG_FRAME_BOOST_TIMEOUT;
 
@@ -38,7 +37,6 @@ module_param_named(remove_input_boost_freq_perf, input_boost_return_freq_hp, uin
 module_param(input_boost_return_freq_lp, uint, 0644);
 module_param(input_boost_return_freq_hp, uint, 0644);
 module_param(input_boost_duration, short, 0644);
-module_param(general_boost_duration, short, 0644);
 module_param(max_boost_enabled, short, 0644);
 module_param(frame_boost_timeout, int, 0644);
 

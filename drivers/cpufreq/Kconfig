@@ -286,12 +286,6 @@ config INPUT_BOOST_DURATION_MS
 	help
 	  Input boost duration in milliseconds.
 
-config WAKE_BOOST_DURATION_MS
-	int "Wake boost duration"
-	default "1000"
-	help
-	  Wake boost duration in milliseconds.
-
 config INPUT_BOOST_FREQ_LP
 	int "Low-power cluster input boost freq"
 	default "0"
@@ -357,12 +351,6 @@ config SUSPEND_STUNE_BOOST
 	  SchedTune boost value during suspend. This alters the perceived load
 	  of process groups in order to bias core selection as well as CPU
 	  frequency selection. A value of 0 disables this functionality.
-
-config GENERAL_BOOST_DURATION
-	int "General Boost Duration"
-	default "80"
-	help
-	  General boost duration in milliseconds.
 
 config MAX_BOOST_ENABLED
 	int "Max Boost enabled"
