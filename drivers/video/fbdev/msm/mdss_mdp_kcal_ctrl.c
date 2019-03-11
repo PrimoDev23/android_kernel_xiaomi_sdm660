@@ -45,9 +45,6 @@ struct kcal_lut_data {
 	struct notifier_block panel_nb;
 #endif
 	bool queue_changes;
-	int red;
-	int green;
-	int blue;
 	int minimum;
 	int enable;
 	int invert;
