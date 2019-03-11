@@ -57,6 +57,10 @@ struct kcal_lut_data {
 	int cont;
 };
 
+unsigned short kcal_red;
+unsigned short kcal_green;
+unsigned short kcal_blue;
+
 static uint32_t igc_Table_Inverted[IGC_LUT_ENTRIES] = {
 	267390960, 266342368, 265293776, 264245184,
 	263196592, 262148000, 261099408, 260050816,
@@ -205,12 +209,12 @@ static void mdss_mdp_kcal_update_pcc(struct kcal_lut_data *lut_data)
 
 	struct mdp_pcc_data_v1_7 *payload;
 
-	lut_data->red = lut_data->red < lut_data->minimum ?
-		lut_data->minimum : lut_data->red;
-	lut_data->green = lut_data->green < lut_data->minimum ?
-		lut_data->minimum : lut_data->green;
-	lut_data->blue = lut_data->blue < lut_data->minimum ?
-		lut_data->minimum : lut_data->blue;
+	kcal_red = kcal_red < lut_data->minimum ?
+		lut_data->minimum : kcal_red;
+	kcal_green = kcal_green < lut_data->minimum ?
+		lut_data->minimum : kcal_green;
+	kcal_blue = kcal_blue < lut_data->minimum ?
+		lut_data->minimum : kcal_blue;
 
 	memset(&pcc_config, 0, sizeof(struct mdp_pcc_cfg_data));
 
@@ -219,9 +223,9 @@ static void mdss_mdp_kcal_update_pcc(struct kcal_lut_data *lut_data)
 	pcc_config.ops = lut_data->enable ?
 		MDP_PP_OPS_WRITE | MDP_PP_OPS_ENABLE :
 			MDP_PP_OPS_WRITE | MDP_PP_OPS_DISABLE;
-	pcc_config.r.r = lut_data->red * PCC_ADJ;
-	pcc_config.g.g = lut_data->green * PCC_ADJ;
-	pcc_config.b.b = lut_data->blue * PCC_ADJ;
+	pcc_config.r.r = kcal_red * PCC_ADJ;
+	pcc_config.g.g = kcal_green * PCC_ADJ;
+	pcc_config.b.b = kcal_blue * PCC_ADJ;
 
 	payload = kzalloc(sizeof(struct mdp_pcc_data_v1_7),GFP_USER);
 	payload->r.r = pcc_config.r.r;
@@ -334,9 +338,9 @@ static ssize_t kcal_store(struct device *dev, struct device_attribute *attr,
 		(kcal_g < 0 || kcal_g > 256) || (kcal_b < 0 || kcal_b > 256))
 		return -EINVAL;
 
-	lut_data->red = kcal_r;
-	lut_data->green = kcal_g;
-	lut_data->blue = kcal_b;
+	kcal_red = kcal_r;
+	kcal_green = kcal_g;
+	kcal_blue = kcal_b;
 
 	if (mdss_mdp_kcal_is_panel_on())
 		mdss_mdp_kcal_update_pcc(lut_data);
@@ -352,7 +356,7 @@ static ssize_t kcal_show(struct device *dev, struct device_attribute *attr,
 	struct kcal_lut_data *lut_data = dev_get_drvdata(dev);
 
 	return scnprintf(buf, PAGE_SIZE, "%d %d %d\n",
-		lut_data->red, lut_data->green, lut_data->blue);
+		kcal_red, kcal_green, kcal_blue);
 }
 
 static ssize_t kcal_min_store(struct device *dev,
@@ -611,9 +615,9 @@ static int kcal_ctrl_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, lut_data);
 
 	lut_data->enable = 0x1;
-	lut_data->red = DEF_PCC;
-	lut_data->green = DEF_PCC;
-	lut_data->blue = DEF_PCC;
+	kcal_red = DEF_PCC;
+	kcal_green = DEF_PCC;
+	kcal_blue = DEF_PCC;
 	lut_data->minimum = 0x23;
 	lut_data->invert = 0x0;
 	lut_data->hue = 0x0;
