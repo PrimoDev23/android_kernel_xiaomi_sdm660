@@ -5,6 +5,7 @@
 #include <linux/rtc.h>
 #include <linux/timer.h>
 #include "klapse.h"
+#include "mdss_mdp_kcal_ctrl.h"
 
 #define LIC "GPLv2"
 #define AUT "tanish2k09"
@@ -94,6 +95,8 @@ static int get_minutes_before_stop(void)
 
 static void set_rgb(int r, int g, int b)
 {
+    mdss_mdp_kcal_update_pcc();
+
     K_RED = r;
     K_GREEN = g;
     K_BLUE = b;
