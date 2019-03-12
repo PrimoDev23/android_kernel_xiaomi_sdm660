@@ -166,7 +166,7 @@ void klapse_pulse(unsigned long data)
     local_time = (u32)(time.tv_sec - (sys_tz.tz_minuteswest * 60));
     rtc_time_to_tm(local_time, &tm);
 
-    if(last_check_min == tm.tm_min)
+    if(last_check_min == tm.tm_min || enable_klapse == 0)
 	return;
 
     last_check_min = tm.tm_min;
