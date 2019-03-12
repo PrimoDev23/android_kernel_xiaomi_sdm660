@@ -31,6 +31,8 @@
 #include <linux/fb.h>
 #endif
 
+#include "mdss_mdp_kcal_ctrl.h"
+
 #include "mdss_mdp.h"
 
 #define DEF_PCC 0x100
@@ -54,6 +56,8 @@ struct kcal_lut_data {
 	int cont;
 };
 
+unsigned short minimum;
+unsigned short enable;
 unsigned short kcal_red;
 unsigned short kcal_green;
 unsigned short kcal_blue;
@@ -199,25 +203,25 @@ static bool mdss_mdp_kcal_is_panel_on(void)
 	return false;
 }
 
-static void mdss_mdp_kcal_update_pcc(struct kcal_lut_data *lut_data)
+void mdss_mdp_kcal_update_pcc(void)
 {
 	u32 copyback = 0;
 	struct mdp_pcc_cfg_data pcc_config;
 
 	struct mdp_pcc_data_v1_7 *payload;
 
-	kcal_red = kcal_red < lut_data->minimum ?
-		lut_data->minimum : kcal_red;
-	kcal_green = kcal_green < lut_data->minimum ?
-		lut_data->minimum : kcal_green;
-	kcal_blue = kcal_blue < lut_data->minimum ?
-		lut_data->minimum : kcal_blue;
+	kcal_red = kcal_red < minimum ?
+		minimum : kcal_red;
+	kcal_green = kcal_green < minimum ?
+		minimum : kcal_green;
+	kcal_blue = kcal_blue < minimum ?
+		minimum : kcal_blue;
 
 	memset(&pcc_config, 0, sizeof(struct mdp_pcc_cfg_data));
 
 	pcc_config.version = mdp_pcc_v1_7;
 	pcc_config.block = MDP_LOGICAL_BLOCK_DISP_0;
-	pcc_config.ops = lut_data->enable ?
+	pcc_config.ops = enable ?
 		MDP_PP_OPS_WRITE | MDP_PP_OPS_ENABLE :
 			MDP_PP_OPS_WRITE | MDP_PP_OPS_DISABLE;
 	pcc_config.r.r = kcal_red * PCC_ADJ;
@@ -250,7 +254,7 @@ static void mdss_mdp_kcal_update_pa(struct kcal_lut_data *lut_data)
 		memset(&pa_config, 0, sizeof(struct mdp_pa_cfg_data));
 
 		pa_config.block = MDP_LOGICAL_BLOCK_DISP_0;
-		pa_config.pa_data.flags = lut_data->enable ?
+		pa_config.pa_data.flags = enable ?
 			MDP_PP_OPS_WRITE | MDP_PP_OPS_ENABLE :
 				MDP_PP_OPS_WRITE | MDP_PP_OPS_DISABLE;
 		pa_config.pa_data.hue_adj = lut_data->hue;
@@ -264,7 +268,7 @@ static void mdss_mdp_kcal_update_pa(struct kcal_lut_data *lut_data)
 		
 		pa_v2_config.version = mdp_pa_v1_7;
 		pa_v2_config.block = MDP_LOGICAL_BLOCK_DISP_0;
-		pa_v2_config.pa_v2_data.flags = lut_data->enable ?
+		pa_v2_config.pa_v2_data.flags = enable ?
 			MDP_PP_OPS_WRITE | MDP_PP_OPS_ENABLE :
 				MDP_PP_OPS_WRITE | MDP_PP_OPS_DISABLE;
 		pa_v2_config.pa_v2_data.flags |= MDP_PP_PA_HUE_ENABLE;
@@ -306,7 +310,7 @@ static void mdss_mdp_kcal_update_igc(struct kcal_lut_data *lut_data)
 
 	igc_config.version = mdp_igc_v1_7;
 	igc_config.block = MDP_LOGICAL_BLOCK_DISP_0;
-	igc_config.ops = lut_data->invert && lut_data->enable ?
+	igc_config.ops = lut_data->invert && enable ?
 		MDP_PP_OPS_WRITE | MDP_PP_OPS_ENABLE :
 			MDP_PP_OPS_WRITE | MDP_PP_OPS_DISABLE;
 	igc_config.len = IGC_LUT_ENTRIES;
@@ -340,7 +344,7 @@ static ssize_t kcal_store(struct device *dev, struct device_attribute *attr,
 	kcal_blue = kcal_b;
 
 	if (mdss_mdp_kcal_is_panel_on())
-		mdss_mdp_kcal_update_pcc(lut_data);
+		mdss_mdp_kcal_update_pcc();
 	else
 		lut_data->queue_changes = true;
 
@@ -366,10 +370,10 @@ static ssize_t kcal_min_store(struct device *dev,
 	if ((r) || (kcal_min < 0 || kcal_min > 256))
 		return -EINVAL;
 
-	lut_data->minimum = kcal_min;
+	minimum = kcal_min;
 
 	if (mdss_mdp_kcal_is_panel_on())
-		mdss_mdp_kcal_update_pcc(lut_data);
+		mdss_mdp_kcal_update_pcc();
 	else
 		lut_data->queue_changes = true;
 
@@ -381,7 +385,7 @@ static ssize_t kcal_min_show(struct device *dev,
 {
 	struct kcal_lut_data *lut_data = dev_get_drvdata(dev);
 
-	return scnprintf(buf, PAGE_SIZE, "%d\n", lut_data->minimum);
+	return scnprintf(buf, PAGE_SIZE, "%d\n", minimum);
 }
 
 static ssize_t kcal_enable_store(struct device *dev,
@@ -392,13 +396,13 @@ static ssize_t kcal_enable_store(struct device *dev,
 
 	r = kstrtoint(buf, 10, &kcal_enable);
 	if ((r) || (kcal_enable != 0 && kcal_enable != 1) ||
-		(lut_data->enable == kcal_enable))
+		(enable == kcal_enable))
 		return -EINVAL;
 
-	lut_data->enable = kcal_enable;
+	enable = kcal_enable;
 
 	if (mdss_mdp_kcal_is_panel_on()) {
-		mdss_mdp_kcal_update_pcc(lut_data);
+		mdss_mdp_kcal_update_pcc();
 		mdss_mdp_kcal_update_pa(lut_data);
 		//mdss_mdp_kcal_update_igc(lut_data);
 	} else
@@ -412,7 +416,7 @@ static ssize_t kcal_enable_show(struct device *dev,
 {
 	struct kcal_lut_data *lut_data = dev_get_drvdata(dev);
 
-	return scnprintf(buf, PAGE_SIZE, "%d\n", lut_data->enable);
+	return scnprintf(buf, PAGE_SIZE, "%d\n", enable);
 }
 
 static ssize_t kcal_invert_store(struct device *dev,
@@ -569,7 +573,7 @@ static int mdss_mdp_kcal_update_queue(struct device *dev)
 	struct kcal_lut_data *lut_data = dev_get_drvdata(dev);
 
 	if (lut_data->queue_changes) {
-		mdss_mdp_kcal_update_pcc(lut_data);
+		mdss_mdp_kcal_update_pcc();
 		mdss_mdp_kcal_update_pa(lut_data);
 		mdss_mdp_kcal_update_igc(lut_data);
 		lut_data->queue_changes = false;
@@ -611,11 +615,11 @@ static int kcal_ctrl_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, lut_data);
 
-	lut_data->enable = 0x1;
+	enable = 0x1;
 	kcal_red = DEF_PCC;
 	kcal_green = DEF_PCC;
 	kcal_blue = DEF_PCC;
-	lut_data->minimum = 0x23;
+	minimum = 0x23;
 	lut_data->invert = 0x0;
 	lut_data->hue = 0x0;
 	lut_data->sat = DEF_PA;
@@ -624,7 +628,7 @@ static int kcal_ctrl_probe(struct platform_device *pdev)
 
 	lut_data->queue_changes = false;
 
-	mdss_mdp_kcal_update_pcc(lut_data);
+	mdss_mdp_kcal_update_pcc();
 	mdss_mdp_kcal_update_pa(lut_data);
 	mdss_mdp_kcal_update_igc(lut_data);
 
