@@ -94,7 +94,6 @@ static int get_minutes_before_stop(void)
 
 static void set_rgb(int r, int g, int b)
 {
-    pr_info("Setting RGB");
     K_RED = r;
     K_GREEN = g;
     K_BLUE = b;
@@ -164,14 +163,10 @@ void klapse_pulse(unsigned long data)
     local_time = (u32)(time.tv_sec - (sys_tz.tz_minuteswest * 60));
     rtc_time_to_tm(local_time, &tm);
 
-    pr_info("Current: %i - Last Check: %i",tm.tm_min, last_check_min);
-
     if(last_check_min == tm.tm_min)
 	return;
 
     last_check_min = tm.tm_min;
-
-    pr_info("Pulse processing");
 
     // Check brightness level automation
     if ((brightness_factor_auto_enable == 1) && !hour_within_range(brightness_factor_auto_start_hour, brightness_factor_auto_stop_hour, tm.tm_hour))
