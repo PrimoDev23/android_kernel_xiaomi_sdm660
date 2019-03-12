@@ -3,6 +3,7 @@
 
 /* Required variables for external access. Change as per use */
 extern void set_rgb_slider(u32 bl_lvl);
+extern void klapse_pulse(unsigned long data);
 
 // This file uses generalised K_### defines
 // The interpretation (right argument) should be the respective color's var
@@ -19,7 +20,7 @@ extern K_TYPE K_RED, K_GREEN, K_BLUE;
  * 1 = time-based scaling
  * 2 = brightness-based scaling
  */
-#define DEFAULT_ENABLE  0
+#define DEFAULT_ENABLE  1
 
 // MAX_SCALE : Maximum value of RGB possible
 #define MAX_SCALE       256
