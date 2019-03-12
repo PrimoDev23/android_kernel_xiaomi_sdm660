@@ -20,7 +20,7 @@ extern K_TYPE K_RED, K_GREEN, K_BLUE;
  * 1 = time-based scaling
  * 2 = brightness-based scaling
  */
-#define DEFAULT_ENABLE  1
+#define DEFAULT_ENABLE  0
 
 // MAX_SCALE : Maximum value of RGB possible
 #define MAX_SCALE       256
