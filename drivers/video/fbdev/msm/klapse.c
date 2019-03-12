@@ -164,7 +164,9 @@ void klapse_pulse(unsigned long data)
     local_time = (u32)(time.tv_sec - (sys_tz.tz_minuteswest * 60));
     rtc_time_to_tm(local_time, &tm);
 
-    if(tm.tm_min < last_check_min || !(last_check_min == 59 && tm.tm_min == 0))
+    pr_info("Current: %i - Last Check: %i",tm.tm_min, last_check_min);
+
+    if(last_check_min == tm.tm_min)
 	return;
 
     last_check_min = tm.tm_min;
