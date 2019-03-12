@@ -244,8 +244,7 @@ void lim_process_mlm_start_cnf(tpAniSirGlobal pMac, uint32_t *pMsgBuf)
 					FL("Start Beacon with ssid %s Ch %d"),
 					psessionEntry->ssId.ssId,
 					psessionEntry->currentOperChannel);
-			lim_send_beacon_ind(pMac, psessionEntry,
-					    REASON_DEFAULT);
+			lim_send_beacon_ind(pMac, psessionEntry);
 		}
 	}
 }
@@ -2659,7 +2658,7 @@ void lim_process_mlm_update_hidden_ssid_rsp(tpAniSirGlobal mac_ctx,
 	}
 	/* Update beacon */
 	sch_set_fixed_beacon_fields(mac_ctx, session_entry);
-	lim_send_beacon_ind(mac_ctx, session_entry, REASON_CONFIG_UPDATE);
+	lim_send_beacon_ind(mac_ctx, session_entry);
 
 free_req:
 	if (NULL != hidden_ssid_vdev_restart) {
@@ -3191,25 +3190,25 @@ free:
 	qdf_mem_free(body);
 }
 
-QDF_STATUS lim_send_beacon_ind(tpAniSirGlobal pMac, tpPESession psessionEntry,
-			       enum sir_bcn_update_reason reason)
+void lim_send_beacon_ind(tpAniSirGlobal pMac, tpPESession psessionEntry)
 {
 	tBeaconGenParams *pBeaconGenParams = NULL;
 	tSirMsgQ limMsg;
 	/** Allocate the Memory for Beacon Pre Message and for Stations in PoweSave*/
-	if (!psessionEntry) {
+	if (psessionEntry == NULL) {
 		pe_err("Error:Unable to get the PESessionEntry");
-		return QDF_STATUS_E_INVAL;
+		return;
 	}
 	pBeaconGenParams = qdf_mem_malloc(sizeof(*pBeaconGenParams));
-	if (!pBeaconGenParams) {
+	if (NULL == pBeaconGenParams) {
 		pe_err("Unable to allocate memory during sending beaconPreMessage");
-		return QDF_STATUS_E_NOMEM;
+		return;
 	}
 	qdf_mem_copy((void *)pBeaconGenParams->bssId,
 		     (void *)psessionEntry->bssId, QDF_MAC_ADDR_SIZE);
 	limMsg.bodyptr = pBeaconGenParams;
-	return sch_process_pre_beacon_ind(pMac, &limMsg, reason);
+	sch_process_pre_beacon_ind(pMac, &limMsg);
+	return;
 }
 
 #ifdef FEATURE_WLAN_SCAN_PNO

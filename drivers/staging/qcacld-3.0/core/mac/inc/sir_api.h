@@ -6807,34 +6807,14 @@ struct sir_nss_update_request {
 };
 
 /**
- * enum sir_bcn_update_reason: bcn update reason
- * @REASON_DEFAULT: reason default
- * @REASON_NSS_UPDATE: If NSS is updated
- * @REASON_CONFIG_UPDATE: Config update
- * @REASON_SET_HT2040: HT2040 update
- * @REASON_COLOR_CHANGE: Color change
- * @REASON_CHANNEL_SWITCH: channel switch
- */
-enum sir_bcn_update_reason {
-	REASON_DEFAULT = 0,
-	REASON_NSS_UPDATE = 1,
-	REASON_CONFIG_UPDATE = 2,
-	REASON_SET_HT2040 = 3,
-	REASON_COLOR_CHANGE = 4,
-	REASON_CHANNEL_SWITCH = 5,
-};
-
-/**
- * struct sir_bcn_update_rsp
+ * struct sir_beacon_tx_complete_rsp
  *
- * @vdev_id: session for which bcn was updated
- * @reason: bcn update reason
- * @status: status of the beacon sent to FW
+ * @session_id: session for which beacon update happened
+ * @tx_status: status of the beacon tx from FW
  */
-struct sir_bcn_update_rsp {
-	uint8_t vdev_id;
-	enum sir_bcn_update_reason reason;
-	QDF_STATUS status;
+struct sir_beacon_tx_complete_rsp {
+	uint8_t session_id;
+	uint8_t tx_status;
 };
 
 typedef void (*nss_update_cb)(void *context, uint8_t tx_status, uint8_t vdev_id,

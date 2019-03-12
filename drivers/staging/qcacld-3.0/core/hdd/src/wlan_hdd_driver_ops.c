@@ -403,14 +403,10 @@ static int wlan_hdd_probe(struct device *dev, void *bdev, const struct hif_bus_i
 	if (ret)
 		goto err_hdd_deinit;
 
-	/*
-	 * Recovery in progress flag will be set if SSR triggered.
-	 * If SSR is triggered during Load time, this flag will be set
-	 * so reset of this flag should be done in both the cases,
-	 * during load time and during re-init
-	 */
-	cds_set_recovery_in_progress(false);
-	if (!reinit) {
+
+	if (reinit) {
+		cds_set_recovery_in_progress(false);
+	} else {
 		cds_set_load_in_progress(false);
 		cds_set_driver_loaded(true);
 		hdd_start_complete(0);
@@ -433,10 +429,10 @@ err_hdd_deinit:
 	    re_init_fail_cnt >= SSR_MAX_FAIL_CNT)
 		QDF_BUG(0);
 
-	cds_set_recovery_in_progress(false);
-	if (reinit)
+	if (reinit) {
 		cds_set_driver_in_bad_state(true);
-	else
+		cds_set_recovery_in_progress(false);
+	} else
 		cds_set_load_in_progress(false);
 
 err_init_qdf_ctx:
@@ -1392,8 +1388,7 @@ static void wlan_hdd_set_the_pld_uevent(struct pld_uevent_data *uevent)
 	case PLD_FW_DOWN:
 	case PLD_RECOVERY:
 		cds_set_target_ready(false);
-		if (!cds_is_driver_loading())
-			cds_set_recovery_in_progress(true);
+		cds_set_recovery_in_progress(true);
 		break;
 	default:
 		return;
