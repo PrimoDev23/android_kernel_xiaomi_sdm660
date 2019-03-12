@@ -26,6 +26,7 @@ static unsigned int fadeback_minutes;
 static unsigned int pulse_freq;
 static bool brightness_factor_auto_enable;
 static unsigned int target_minute; // <-- Masked as tunable by using klapse_scaling_rate sysfs name
+static int last_check_min = 0;
 
 /*
  *Internal calculation variables :
@@ -40,7 +41,7 @@ static struct timeval time;
 static struct timer_list pulse_timer;
 
 // Pulse prototype
-static void klapse_pulse(unsigned long data);
+void klapse_pulse(unsigned long data);
 
 //klapse related functions
 static void restart_timer(void)
@@ -93,6 +94,7 @@ static int get_minutes_before_stop(void)
 
 static void set_rgb(int r, int g, int b)
 {
+    pr_info("Setting RGB");
     K_RED = r;
     K_GREEN = g;
     K_BLUE = b;
@@ -153,14 +155,21 @@ static bool hour_within_range(int start, int stop, int check)
 //klapse calc functions end here.
 
 // klapse rgb update function
-static void klapse_pulse(unsigned long data)
+void klapse_pulse(unsigned long data)
 {
     int backtime;        
-       
+
     // Get time
     do_gettimeofday(&time);
     local_time = (u32)(time.tv_sec - (sys_tz.tz_minuteswest * 60));
     rtc_time_to_tm(local_time, &tm);
+
+    if(tm.tm_min < last_check_min || !(last_check_min == 59 && tm.tm_min == 0))
+	return;
+
+    last_check_min = tm.tm_min;
+
+    pr_info("Pulse processing");
 
     // Check brightness level automation
     if ((brightness_factor_auto_enable == 1) && !hour_within_range(brightness_factor_auto_start_hour, brightness_factor_auto_stop_hour, tm.tm_hour))
