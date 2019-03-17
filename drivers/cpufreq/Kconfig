@@ -343,15 +343,6 @@ config MAX_STUNE_BOOST
 	  of process groups in order to bias core selection as well as CPU
 	  frequency selection. A value of 0 disables this functionality.
 
-config SUSPEND_STUNE_BOOST
-	int "Suspend SchedTune boost value"
-	depends on DYNAMIC_STUNE_BOOST
-	default "-50"
-	help
-	  SchedTune boost value during suspend. This alters the perceived load
-	  of process groups in order to bias core selection as well as CPU
-	  frequency selection. A value of 0 disables this functionality.
-
 config MAX_BOOST_ENABLED
 	int "Max Boost enabled"
 	default "1"
