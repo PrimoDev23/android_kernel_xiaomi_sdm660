@@ -1647,6 +1647,8 @@ int smblib_get_prop_batt_capacity(struct smb_charger *chg,
 	if (chg->bms_psy)
 		rc = power_supply_get_property(chg->bms_psy,
 				POWER_SUPPLY_PROP_CAPACITY, val);
+	pr_info("Capacity: %i", rc);
+
 	return rc;
 }
 
