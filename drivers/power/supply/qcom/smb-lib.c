@@ -1694,7 +1694,6 @@ int smblib_get_prop_batt_capacity(struct smb_charger *chg,
 	//If capacity == stop value and phone is charging and charging isn't suspended suspend charging
 	if(val->intval == stop_charge_capacity && charging && !suspended){
 		suspend_cache.intval = 1;
-		pr_info("Full charged to 80%");
 		if(smblib_set_prop_input_suspend(chg,&suspend_cache)){
 			pr_info("Charging limiter: Error while suspend charging");
 		}
