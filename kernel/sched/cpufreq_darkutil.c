@@ -30,7 +30,7 @@ unsigned long boosted_cpu_util(int cpu);
 #define cpufreq_disable_fast_switch(x)
 #define LATENCY_MULTIPLIER			(2000)
 #define dugov_KTHREAD_PRIORITY	50
-#define DEFAULT_SUSPEND_MAX_FREQ_SILVER	1113600
+#define DEFAULT_SUSPEND_MAX_FREQ_SILVER	300000
 #define DEFAULT_SUSPEND_MAX_FREQ_GOLD	300000
 #define DEFAULT_SUSPEND_CAPACITY_FACTOR 10
 
