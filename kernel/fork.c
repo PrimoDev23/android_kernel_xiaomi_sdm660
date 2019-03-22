@@ -1814,9 +1814,7 @@ long _do_fork(unsigned long clone_flags,
 	int trace = 0;
 	long nr;
 
-	pr_info("Suspended state: %i", !state_suspended ? 1 : 0);
-	pr_info("Zygote PID: %i", is_zygote_pid(current->pid) ? 1 : 0);
-	pr_info("Suspended state: %i", time_before(jiffies, last_input_jiffies + msecs_to_jiffies(75)) ? 1 : 0);
+	pr_info("Suspended state: %i", state_suspended ? 1 : 0);
 
 #ifdef CONFIG_CPU_INPUT_BOOST
 	/* Boost CPU to the max for 32 ms when userspace launches an app */
