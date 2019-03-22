@@ -1818,7 +1818,6 @@ long _do_fork(unsigned long clone_flags,
 	/* Boost CPU to the max for 32 ms when userspace launches an app */
 	if (is_zygote_pid(current->pid) && !state_suspended &&
 		cpu_input_boost_should_boost_frame()) {
-		time_before(jiffies, last_input_jiffies + msecs_to_jiffies(75))) {
 		cpu_input_boost_kick_max(32);
 	}
 #endif
