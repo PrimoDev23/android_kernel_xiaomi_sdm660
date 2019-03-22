@@ -354,7 +354,6 @@ static ssize_t kcal_store(struct device *dev, struct device_attribute *attr,
 static ssize_t kcal_show(struct device *dev, struct device_attribute *attr,
 								char *buf)
 {
-	struct kcal_lut_data *lut_data = dev_get_drvdata(dev);
 
 	return scnprintf(buf, PAGE_SIZE, "%d %d %d\n",
 		kcal_red, kcal_green, kcal_blue);
@@ -383,7 +382,6 @@ static ssize_t kcal_min_store(struct device *dev,
 static ssize_t kcal_min_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
-	struct kcal_lut_data *lut_data = dev_get_drvdata(dev);
 
 	return scnprintf(buf, PAGE_SIZE, "%d\n", minimum);
 }
@@ -414,7 +412,6 @@ static ssize_t kcal_enable_store(struct device *dev,
 static ssize_t kcal_enable_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
-	struct kcal_lut_data *lut_data = dev_get_drvdata(dev);
 
 	return scnprintf(buf, PAGE_SIZE, "%d\n", enable);
 }

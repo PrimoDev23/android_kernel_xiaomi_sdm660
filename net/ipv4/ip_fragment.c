@@ -82,33 +82,6 @@ static void ip4_frag_init_run(struct sk_buff *skb)
 	FRAG_CB(skb)->frag_run_len = skb->len;
 }
 
-/* Append skb to the last "run". */
-static void ip4_frag_append_to_last_run(struct inet_frag_queue *q,
-					struct sk_buff *skb)
-{
-	RB_CLEAR_NODE(&skb->rbnode);
-	FRAG_CB(skb)->next_frag = NULL;
-
-	FRAG_CB(q->last_run_head)->frag_run_len += skb->len;
-	FRAG_CB(q->fragments_tail)->next_frag = skb;
-	q->fragments_tail = skb;
-}
-
-/* Create a new "run" with the skb. */
-static void ip4_frag_create_run(struct inet_frag_queue *q, struct sk_buff *skb)
-{
-	if (q->last_run_head)
-		rb_link_node(&skb->rbnode, &q->last_run_head->rbnode,
-			     &q->last_run_head->rbnode.rb_right);
-	else
-		rb_link_node(&skb->rbnode, NULL, &q->rb_fragments.rb_node);
-	rb_insert_color(&skb->rbnode, &q->rb_fragments);
-
-	ip4_frag_init_run(skb);
-	q->fragments_tail = skb;
-	q->last_run_head = skb;
-}
-
 /* Describe an entry in the "incomplete datagrams" queue. */
 struct ipq {
 	struct inet_frag_queue q;

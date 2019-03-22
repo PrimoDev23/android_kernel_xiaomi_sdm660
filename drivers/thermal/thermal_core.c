@@ -71,7 +71,6 @@ static DEFINE_MUTEX(thermal_list_lock);
 static DEFINE_MUTEX(thermal_governor_lock);
 
 static atomic_t switch_mode = ATOMIC_INIT(-1);
-static atomic_t temp_state = ATOMIC_INIT(0);
 
 static struct thermal_governor *def_governor;
 
