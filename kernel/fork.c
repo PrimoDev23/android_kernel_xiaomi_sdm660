@@ -1814,13 +1814,11 @@ long _do_fork(unsigned long clone_flags,
 	int trace = 0;
 	long nr;
 
-	pr_info("Suspended state: %i", state_suspended ? 1 : 0);
-
 #ifdef CONFIG_CPU_INPUT_BOOST
 	/* Boost CPU to the max for 32 ms when userspace launches an app */
 	if (is_zygote_pid(current->pid) && !state_suspended &&
 		cpu_input_boost_should_boost_frame()) {
-		pr_info("Max Boost on App launch");
+		time_before(jiffies, last_input_jiffies + msecs_to_jiffies(75))) {
 		cpu_input_boost_kick_max(32);
 	}
 #endif
