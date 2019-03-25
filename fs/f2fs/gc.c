@@ -281,17 +281,10 @@ void f2fs_sbi_list_del(struct f2fs_sb_info *sbi)
 static struct work_struct f2fs_gc_fb_worker;
 static void f2fs_gc_fb_work(struct work_struct *work)
 {
-	if (state_suspended) {
+	if (state_suspended)
 		f2fs_stop_all_gc_threads();
-	} else {
-		/*
-		 * Start all GC threads exclusively from here
-		 * since the phone screen would turn on when
-		 * a charger is connected
-		 */
-		if (TRIGGER_SOFF)
-			f2fs_start_all_gc_threads();
-	}
+	else if (TRIGGER_SOFF)
+		f2fs_start_all_gc_threads();
 }
 
 static int fb_notifier_callback(struct notifier_block *self,
