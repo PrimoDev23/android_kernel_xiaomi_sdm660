@@ -15,6 +15,7 @@
 #include <linux/freezer.h>
 #include <linux/fb.h>
 #include <linux/power_supply.h>
+#include <linux/state_notifier.h>
 
 #include "f2fs.h"
 #include "node.h"
@@ -22,8 +23,7 @@
 #include "gc.h"
 #include <trace/events/f2fs.h>
 
-#define TRIGGER_SOFF (!screen_on && power_supply_is_system_supplied())
-static bool screen_on = true;
+#define TRIGGER_SOFF (!state_suspended && power_supply_is_system_supplied())
 // Use 1 instead of 0 to allow thread interrupts
 #define SOFF_WAIT_MS 1
 
@@ -283,7 +283,7 @@ void f2fs_sbi_list_del(struct f2fs_sb_info *sbi)
 static struct work_struct f2fs_gc_fb_worker;
 static void f2fs_gc_fb_work(struct work_struct *work)
 {
-	if (screen_on) {
+	if (state_suspended) {
 		f2fs_stop_all_gc_threads();
 	} else {
 		/*
