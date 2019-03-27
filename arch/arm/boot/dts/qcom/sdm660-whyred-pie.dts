@@ -18,7 +18,7 @@
 			device_type = "cpu";
 			compatible = "arm,armv8";
 			reg = <0x0 0x0>;
-			clock-frequency = <1612800000>;
+			clock-frequency = <0x60216000>;
 			enable-method = "psci";
 			qcom,limits-info = <0x2>;
 			qcom,lmh-dcvs = <0x3>;
@@ -63,7 +63,7 @@
 			device_type = "cpu";
 			compatible = "arm,armv8";
 			reg = <0x0 0x1>;
-			clock-frequency = <1612800000>;
+			clock-frequency = <0x60216000>;
 			enable-method = "psci";
 			qcom,limits-info = <0x2>;
 			qcom,lmh-dcvs = <0x3>;
@@ -100,7 +100,7 @@
 			device_type = "cpu";
 			compatible = "arm,armv8";
 			reg = <0x0 0x2>;
-			clock-frequency = <1612800000>;
+			clock-frequency = <0x60216000>;
 			enable-method = "psci";
 			qcom,limits-info = <0x2>;
 			qcom,lmh-dcvs = <0x3>;
@@ -137,7 +137,7 @@
 			device_type = "cpu";
 			compatible = "arm,armv8";
 			reg = <0x0 0x3>;
-			clock-frequency = <1612800000>;
+			clock-frequency = <0x60216000>;
 			enable-method = "psci";
 			qcom,limits-info = <0x2>;
 			qcom,lmh-dcvs = <0x3>;
@@ -174,7 +174,7 @@
 			device_type = "cpu";
 			compatible = "arm,armv8";
 			reg = <0x0 0x100>;
-			clock-frequency = <1804800000>;
+			clock-frequency = <0x6b931000>;
 			enable-method = "psci";
 			qcom,limits-info = <0x9>;
 			qcom,lmh-dcvs = <0xa>;
@@ -218,7 +218,7 @@
 			device_type = "cpu";
 			compatible = "arm,armv8";
 			reg = <0x0 0x101>;
-			clock-frequency = <1804800000>;
+			clock-frequency = <0x6b931000>;
 			enable-method = "psci";
 			qcom,limits-info = <0xd>;
 			qcom,lmh-dcvs = <0xa>;
@@ -255,7 +255,7 @@
 			device_type = "cpu";
 			compatible = "arm,armv8";
 			reg = <0x0 0x102>;
-			clock-frequency = <1804800000>;
+			clock-frequency = <0x6b931000>;
 			enable-method = "psci";
 			qcom,limits-info = <0xf>;
 			qcom,lmh-dcvs = <0xa>;
@@ -292,7 +292,7 @@
 			device_type = "cpu";
 			compatible = "arm,armv8";
 			reg = <0x0 0x103>;
-			clock-frequency = <1804800000>;
+			clock-frequency = <0x6b931000>;
 			enable-method = "psci";
 			qcom,limits-info = <0x11>;
 			qcom,lmh-dcvs = <0xa>;
@@ -4845,6 +4845,7 @@
 			qcom,irq-mask = <0x200>;
 			interrupts = <0x0 0x9d 0x1>;
 			label = "lpass";
+			cpu-affinity = <1 2>;
 			qcom,qos-config = <0xe9>;
 			qcom,ramp-time = <0xaf>;
 		};
@@ -8068,7 +8069,7 @@
 			interrupt-names = "kgsl_3d0_irq";
 			#cooling-cells = <2>;
 			qcom,id = <0x0>;
-			qcom,chipid = <0x5000900>;
+			qcom,chipid = <0x5010200>;
 			qcom,initial-pwrlevel = <0x6>;
 			qcom,idle-timeout = <0x50>;
 			qcom,highest-bank-bit = <0xe>;
@@ -17153,7 +17154,15 @@
 				qcom,mdss-dsi-reset-sequence = <0x1 0x1 0x0 0x5 0x1 0x23>;
 				qcom,mdss-dsi-tx-eot-append;
 				qcom,mdss-dsi-post-init-delay = <0x1>;
-				qcom,esd-check-enabled;
+				qcom,mdss-dsi-pan-enable-dynamic-bitclk;
+				qcom,mdss-dsi-dynamic-bitclk_freq = <798240576 801594528 804948480
+				808302432 811656384>;
+				qcom,mdss-dsi-pan-enable-dynamic-fps;
+				qcom,mdss-dsi-pan-fps-update = "dfps_immediate_porch_mode_vfp";
+				qcom,partial-update-enabled = "single_roi";
+				qcom,panel-roi-alignment = <2 2 4 2 1080 2>;	
+				qcom,ulps-enabled;
+				qcom,suspend-ulps-enabled;
 				qcom,mdss-dsi-panel-status-command = <0x6010001 0x500010a>;
 				qcom,mdss-dsi-panel-status-command-state = "dsi_hs_mode";
 				qcom,mdss-dsi-panel-status-check-mode = "reg_read";
