@@ -395,8 +395,6 @@ static void dugov_update_single(struct update_util_data *hook, u64 time,
 	busy = use_pelt() && dugov_cpu_is_busy(du_cpu);
 
 	if (flags & SCHED_CPUFREQ_DL) {
-		/* clear cache when it's bypassed */
-		du_policy->cached_raw_freq = 0;
 		next_f = get_next_freq(du_policy, util, policy->cpuinfo.max_freq);
 	} else {
 		dugov_get_util(&util, &max, time);
@@ -406,7 +404,8 @@ static void dugov_update_single(struct update_util_data *hook, u64 time,
 		 * Do not reduce the frequency if the CPU has not been idle
 		 * recently, as the reduction is likely to be premature then.
 		 */
-		if (busy && next_f < du_policy->next_freq) {
+		if (busy && next_f < du_policy->next_freq &&
+		    du_policy->next_freq != UINT_MAX) {
 			next_f = du_policy->next_freq;
 		du_policy->cached_raw_freq = 0;
 	}
@@ -441,11 +440,8 @@ static unsigned int dugov_next_freq_shared(struct dugov_cpu *du_cpu,
 			j_du_cpu->iowait_boost_pending = false;
 			continue;
 		}
-		if (j_du_cpu->flags & SCHED_CPUFREQ_DL){
-			/* clear cache when it's bypassed */
-			du_policy->cached_raw_freq = 0;
+		if (j_du_cpu->flags & SCHED_CPUFREQ_DL)
 			return policy->cpuinfo.max_freq;
-		}
 		
 		j_util = j_du_cpu->util;
 		j_max = j_du_cpu->max;
@@ -485,13 +481,11 @@ static void dugov_update_shared(struct update_util_data *hook, u64 time,
 	du_cpu->last_update = time;
 
 	if (dugov_should_update_freq(du_policy, time)) {
-		if (flags & SCHED_CPUFREQ_DL){
-			/* clear cache when it's bypassed */
-			du_policy->cached_raw_freq = 0;
+		if (flags & SCHED_CPUFREQ_DL)
 			next_f = du_policy->policy->cpuinfo.max_freq;
-		}else{
+		else
 			next_f = dugov_next_freq_shared(du_cpu, util, max, flags);
-		}
+
 		dugov_update_commit(du_policy, time, next_f);
 	}
 done:
