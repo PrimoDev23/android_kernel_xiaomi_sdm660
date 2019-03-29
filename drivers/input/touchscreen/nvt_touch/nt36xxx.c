@@ -19,13 +19,13 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/delay.h>
+#include <linux/device.h>
 #include <linux/interrupt.h>
 #include <linux/irq.h>
 #include <linux/gpio.h>
 #include <linux/proc_fs.h>
 #include <asm/uaccess.h>
 #include <linux/input/mt.h>
-#include <linux/wakelock.h>
 #include <linux/of_gpio.h>
 #include <linux/of_irq.h>
 
@@ -778,7 +778,7 @@ static int32_t nvt_flash_proc_init(void)
 /* function page definition */
 #define FUNCPAGE_GESTURE         1
 
-static struct wake_lock gestrue_wakelock;
+static struct wakeup_source gestrue_wakelock;
 
 /*******************************************************
 Description:
@@ -1136,11 +1136,11 @@ static irqreturn_t nvt_ts_irq_handler(int32_t irq, void *dev_id)
 {
 	disable_irq_nosync(ts->client->irq);
 
-#if WAKEUP_GESTURE
+/* #if WAKEUP_GESTURE
 	if (bTouchIsAwake == 0) {
-		wake_lock_timeout(&gestrue_wakelock, msecs_to_jiffies(5000));
+		__pm_wakeup_event(&gestrue_wakelock);
 	}
-#endif
+#endif */
 
 	queue_work(nvt_wq, &ts->nvt_work);
 
@@ -1363,7 +1363,7 @@ static int32_t nvt_ts_probe(struct i2c_client *client, const struct i2c_device_i
 	for (retry = 0; retry < (sizeof(gesture_key_array) / sizeof(gesture_key_array[0])); retry++) {
 		input_set_capability(ts->input_dev, EV_KEY, gesture_key_array[retry]);
 	}
-	wake_lock_init(&gestrue_wakelock, WAKE_LOCK_SUSPEND, "poll-wake-lock");
+	wakeup_source_init(&gestrue_wakelock, "poll-wake-lock");
 #endif
 
 	sprintf(ts->phys, "input/ts");

@@ -7,7 +7,6 @@
 #include <linux/input.h>
 #include <linux/interrupt.h>
 #include <linux/gpio.h>
-#include <linux/wakelock.h>
 #include <linux/delay.h>
 #include <linux/of_gpio.h>
 #include <linux/of_device.h>
