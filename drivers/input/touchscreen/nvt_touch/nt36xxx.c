@@ -1136,11 +1136,11 @@ static irqreturn_t nvt_ts_irq_handler(int32_t irq, void *dev_id)
 {
 	disable_irq_nosync(ts->client->irq);
 
-/* #if WAKEUP_GESTURE
+ #if WAKEUP_GESTURE
 	if (bTouchIsAwake == 0) {
-		__pm_wakeup_event(&gestrue_wakelock);
+		__pm_wakeup_event(&gestrue_wakelock, 5000);
 	}
-#endif */
+#endif
 
 	queue_work(nvt_wq, &ts->nvt_work);
 
