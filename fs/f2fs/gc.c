@@ -31,12 +31,12 @@ static inline void gc_set_wakelock(struct f2fs_sb_info *sbi,
 		struct f2fs_gc_kthread *gc_th, bool val)
 {
 	if (val) {
-		if (!&gc_th->gc_wakelock.active) {
+		if (!gc_th->gc_wakelock.active) {
 			f2fs_msg(sbi->sb, KERN_INFO, "Catching wakelock for GC");
 			__pm_stay_awake(&gc_th->gc_wakelock);
 		}
 	} else {
-		if (&gc_th->gc_wakelock) {
+		if (gc_th->gc_wakelock.active) {
 			f2fs_msg(sbi->sb, KERN_INFO, "Unlocking wakelock for GC");
 			__pm_stay_awake(&gc_th->gc_wakelock);
 		}
