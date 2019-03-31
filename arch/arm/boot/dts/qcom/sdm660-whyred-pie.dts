@@ -15244,6 +15244,7 @@
 				qcom,suspend-ulps-enabled;
 				qcom,partial-update-enabled = "single_roi";
 				qcom,panel-roi-alignment = <2 2 4 2 1080 2>;
+				qcom,mdss-dsi-panel-hdr-enabled;
 				qcom,mdss-dsi-panel-hdr-color-primaries = <14500 15500 32000
 					17000 15500 30000 8000 3000>;
 				qcom,mdss-dsi-panel-peak-brightness = <4300000>;
@@ -15446,6 +15447,7 @@
 				qcom,suspend-ulps-enabled;
 				qcom,partial-update-enabled = "single_roi";
 				qcom,panel-roi-alignment = <2 2 4 2 1080 2>;
+				qcom,mdss-dsi-panel-hdr-enabled;
 				qcom,mdss-dsi-panel-hdr-color-primaries = <14500 15500 32000
 					17000 15500 30000 8000 3000>;
 				qcom,mdss-dsi-panel-peak-brightness = <4300000>;
@@ -15524,6 +15526,7 @@
 				qcom,suspend-ulps-enabled;
 				qcom,partial-update-enabled = "single_roi";
 				qcom,panel-roi-alignment = <2 2 4 2 1080 2>;
+				qcom,mdss-dsi-panel-hdr-enabled;
 				qcom,mdss-dsi-panel-hdr-color-primaries = <14500 15500 32000
 					17000 15500 30000 8000 3000>;
 				qcom,mdss-dsi-panel-peak-brightness = <4300000>;
@@ -15684,9 +15687,10 @@
 				qcom,mdss-dsi-underflow-color = <0x3ff>;
 				qcom,mdss-dsi-border-color = <0x0>;
 				qcom,mdss-dsi-panel-hdr-enabled;
-				qcom,mdss-dsi-panel-hdr-color-primaries = <0x38a4 0x3c8c 0x7d00 0x4268 0x3c8c 0x7530 0x1f40 0xbb8>;
-				qcom,mdss-dsi-panel-peak-brightness = <0x401640>;
-				qcom,mdss-dsi-panel-blackness-level = <0xc9e>;
+				qcom,mdss-dsi-panel-hdr-color-primaries = <14500 15500 32000
+					17000 15500 30000 8000 3000>;
+				qcom,mdss-dsi-panel-peak-brightness = <4300000>;
+				qcom,mdss-dsi-panel-blackness-level = <3230>;
 				qcom,mdss-dsi-on-command = [15 01 00 00 00 00 02 ff 10 15 01 00 00 00 00 02 fb 01 15 01 00 00 00 00 02 ba 03 15 01 00 00 00 00 02 e5 01 15 01 00 00 00 00 02 35 00 15 01 00 00 00 00 02 bb 03 15 01 00 00 00 00 02 b0 03 39 01 00 00 00 00 06 3b 03 08 08 64 9a 15 01 00 00 00 00 02 ff e0 15 01 00 00 00 00 02 fb 01 15 01 00 00 00 00 02 6b 3d 15 01 00 00 00 00 02 6c 3d 15 01 00 00 00 00 02 6d 3d 15 01 00 00 00 00 02 6e 3d 15 01 00 00 00 00 02 6f 3d 15 01 00 00 00 00 02 35 02 15 01 00 00 00 00 02 36 72 15 01 00 00 00 00 02 37 10 15 01 00 00 00 00 02 08 c0 15 01 00 00 00 00 02 ff 10 05 01 00 00 78 00 02 11 00 05 01 00 00 32 00 02 29 00];
 				qcom,mdss-dsi-off-command = [05 01 00 00 0a 00 02 28 00 05 01 00 00 3c 00 02 10 00];
 				qcom,mdss-dsi-on-command-state = "dsi_lp_mode";
@@ -15717,10 +15721,6 @@
 				qcom,suspend-ulps-enabled;
 				qcom,partial-update-enabled = "single_roi";
 				qcom,panel-roi-alignment = <2 2 4 2 1080 2>;
-				qcom,mdss-dsi-panel-hdr-color-primaries = <14500 15500 32000
-					17000 15500 30000 8000 3000>;
-				qcom,mdss-dsi-panel-peak-brightness = <4300000>;
-				qcom,mdss-dsi-panel-blackness-level = <3230>;
 
 				config0 {
 					qcom,split-mode = "dualctl-split";
@@ -15862,6 +15862,7 @@
 				qcom,suspend-ulps-enabled;
 				qcom,partial-update-enabled = "single_roi";
 				qcom,panel-roi-alignment = <2 2 4 2 1080 2>;
+				qcom,mdss-dsi-panel-hdr-enabled;
 				qcom,mdss-dsi-panel-hdr-color-primaries = <14500 15500 32000
 					17000 15500 30000 8000 3000>;
 				qcom,mdss-dsi-panel-peak-brightness = <4300000>;
@@ -16053,6 +16054,7 @@
 				qcom,suspend-ulps-enabled;
 				qcom,partial-update-enabled = "single_roi";
 				qcom,panel-roi-alignment = <2 2 4 2 1080 2>;
+				qcom,mdss-dsi-panel-hdr-enabled;
 				qcom,mdss-dsi-panel-hdr-color-primaries = <14500 15500 32000
 					17000 15500 30000 8000 3000>;
 				qcom,mdss-dsi-panel-peak-brightness = <4300000>;
@@ -16228,6 +16230,7 @@
 				qcom,suspend-ulps-enabled;
 				qcom,partial-update-enabled = "single_roi";
 				qcom,panel-roi-alignment = <2 2 4 2 1080 2>;
+				qcom,mdss-dsi-panel-hdr-enabled;
 				qcom,mdss-dsi-panel-hdr-color-primaries = <14500 15500 32000
 					17000 15500 30000 8000 3000>;
 				qcom,mdss-dsi-panel-peak-brightness = <4300000>;
