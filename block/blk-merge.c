@@ -894,11 +894,10 @@ bool blk_rq_merge_ok(struct request *rq, struct bio *bio)
 	    !blk_write_same_mergeable(rq->bio, bio))
 		return false;
 
-<<<<<<< HEAD
 	if (crypto_not_mergeable(rq->bio, bio))
-=======
+		return false;
+
 	if (rq->ioprio != bio_prio(bio))
->>>>>>> d936652... block: prevent merging of requests with different priorities
 		return false;
 
 	return true;
