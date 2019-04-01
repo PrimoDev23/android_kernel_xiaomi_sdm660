@@ -19,6 +19,7 @@
 #include <linux/input.h>
 #include <linux/moduleparam.h>
 #include <linux/slab.h>
+#include <linux/state_notifier.h>
 
 unsigned long last_input_jiffies;
 
@@ -189,7 +190,7 @@ void cpu_input_boost_kick_max(unsigned int duration_ms)
 {
 	struct boost_drv *b = boost_drv_g;
 
-	if (max_boost_enabled == 0)
+	if (max_boost_enabled == 0 || state_suspended)
 		return;
 
 	if (!b)
