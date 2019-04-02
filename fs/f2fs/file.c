@@ -2813,15 +2813,21 @@ static ssize_t f2fs_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
 	struct inode *inode = file_inode(file);
 	ssize_t ret;
 
-	if (unlikely(f2fs_cp_error(F2FS_I_SB(inode))))
-		return -EIO;
+	if (unlikely(f2fs_cp_error(F2FS_I_SB(inode)))) {
+		ret = -EIO;
+		goto out;
+	}
 
-	if ((iocb->ki_flags & IOCB_NOWAIT) && !(iocb->ki_flags & IOCB_DIRECT))
-		return -EINVAL;
+	if ((iocb->ki_flags & IOCB_NOWAIT) && !(iocb->ki_flags & IOCB_DIRECT)) {
+		ret = -EINVAL;
+		goto out;
+	}
 
 	if (!inode_trylock(inode)) {
-		if (iocb->ki_flags & IOCB_NOWAIT)
-			return -EAGAIN;
+		if (iocb->ki_flags & IOCB_NOWAIT) {
+			ret = -EAGAIN;
+			goto out;
+		}
 		inode_lock(inode);
 	}
 
@@ -2844,7 +2850,8 @@ static ssize_t f2fs_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
 						clear_inode_flag(inode,
 								FI_NO_PREALLOC);
 						inode_unlock(inode);
-						return -EAGAIN;
+						ret = -EAGAIN;
+						goto out;
 				}
 
 		} else {
@@ -2855,7 +2862,8 @@ static ssize_t f2fs_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
 			if (err) {
 				clear_inode_flag(inode, FI_NO_PREALLOC);
 				inode_unlock(inode);
-				return err;
+				ret = err;
+				goto out;
 			}
 		}
 		ret = __generic_file_write_iter(iocb, from);
@@ -2869,7 +2877,9 @@ static ssize_t f2fs_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
 			f2fs_update_iostat(F2FS_I_SB(inode), APP_WRITE_IO, ret);
 	}
 	inode_unlock(inode);
-
+out:
+	trace_f2fs_file_write_iter(inode, iocb->ki_pos,
+					iov_iter_count(from), ret);
 	if (ret > 0) {
 		ssize_t err;
 
