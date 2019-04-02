@@ -3826,6 +3826,12 @@
 			};
 		};
 
+		thermal-message {
+			thermal,batt-array-size = "8";
+			thermal,batt-level-screen-on = "5 10 11 12 13 14 14 16";
+			thermal,batt-level-screen-off = "0 2 4 6 8 10 14 16";
+		};
+
 		cx_ipeak@1fe5040 {
 			compatible = "qcom,cx-ipeak-sdm660";
 			reg = <0x1fe5040 0x28>;
