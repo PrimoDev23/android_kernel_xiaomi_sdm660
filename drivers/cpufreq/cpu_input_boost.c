@@ -12,6 +12,7 @@
 #include <linux/moduleparam.h>
 #include <linux/slab.h>
 #include <linux/version.h>
+#include <linux/state_notifier.h>
 
 /* The sched_param struct is located elsewhere in newer kernels */
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0)
@@ -52,7 +53,6 @@ module_param_named(dynamic_stune_boost, stune_boost, int, 0644);
 #endif
 
 /* Available bits for boost state */
-#define SCREEN_OFF		BIT(0)
 #define INPUT_BOOST		BIT(1)
 #define MAX_BOOST		BIT(2)
 #define WAKE_BOOST		BIT(3)
@@ -167,7 +167,7 @@ static void clear_stune_boost(struct boost_drv *b)
 
 static void __cpu_input_boost_kick(struct boost_drv *b)
 {
-	if (get_boost_state(b) & SCREEN_OFF)
+	if (state_suspended)
 		return;
 
 	if (!input_boost_duration)
@@ -218,7 +218,7 @@ void cpu_input_boost_kick_max(unsigned int duration_ms)
 	if (max_boost_enabled == 0 || state_suspended)
 		return;
 
-	if (get_boost_state(b) & SCREEN_OFF)
+	if (state_suspended)
 		return;
 
 	__cpu_input_boost_kick_max(b, duration_ms);
@@ -302,7 +302,7 @@ static int cpu_notifier_cb(struct notifier_block *nb,
 	}
 
 	/* Unboost when the screen is off */
-	if (state & SCREEN_OFF) {
+	if (state_suspended) {
 		policy->min = get_min_freq(policy);
 		clear_stune_boost(b);
 		return NOTIFY_OK;
@@ -342,13 +342,10 @@ static int fb_notifier_cb(struct notifier_block *nb,
 		return NOTIFY_OK;
 
 	/* Boost when the screen turns on and unboost when it turns off */
-	if (*blank == FB_BLANK_UNBLANK) {
-		clear_boost_bit(b, SCREEN_OFF);
+	if (*blank == FB_BLANK_UNBLANK)
 		__cpu_input_boost_kick_wake(b);
-	} else {
-		set_boost_bit(b, SCREEN_OFF);
+	else
 		wake_up(&b->boost_waitq);
-	}
 
 	return NOTIFY_OK;
 }
@@ -361,7 +358,7 @@ static void cpu_input_boost_input_event(struct input_handle *handle,
 	__cpu_input_boost_kick(b);
 
 	if (type == EV_KEY && code == KEY_POWER && value == 1 &&
-	    !(get_boost_state(b) & SCREEN_OFF))
+	    !state_suspended)
 		__cpu_input_boost_kick_wake(b);
 
 	b->last_input_jiffies = jiffies;
