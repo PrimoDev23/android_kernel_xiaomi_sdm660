@@ -187,8 +187,7 @@ void cpu_input_boost_kick(void)
 	if (!b)
 		return;
 
-	if (likely(input_boost_duration))
-		queue_work(b->wq, &b->input_boost);
+	__cpu_input_boost_kick(b);
 }
 
 static void __cpu_input_boost_kick_max(struct boost_drv *b,
@@ -216,7 +215,7 @@ void cpu_input_boost_kick_max(unsigned int duration_ms)
 {
 	struct boost_drv *b = boost_drv_g;
 
-	if (max_boost_enabled == 0 || state_suspended)
+	if (!b)
 		return;
 
 	if (state_suspended)
@@ -481,15 +480,13 @@ static int __init cpu_input_boost_init(void)
 	if (IS_ERR(boost_thread)) {
 		pr_err("Failed to start CPU boost thread, err: %ld\n",
 		       PTR_ERR(boost_thread));
-		goto unregister_drm_notif;
+		goto unregister_handler;
 	}
 
 	boost_drv_g = b;
 
 	return 0;
 
-unregister_drm_notif:
-	msm_drm_unregister_client(&b->msm_drm_notif);
 unregister_handler:
 	input_unregister_handler(&cpu_input_boost_input_handler);
 unregister_cpu_notif:
