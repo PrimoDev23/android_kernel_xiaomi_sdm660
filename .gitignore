@@ -55,6 +55,9 @@ Module.symvers
 #Output dir
 out/
 
+#AnyKernel
+flasher/
+
 #
 # Debian directory (make deb-pkg)
 #
