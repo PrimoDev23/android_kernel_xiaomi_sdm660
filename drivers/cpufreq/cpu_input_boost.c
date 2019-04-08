@@ -33,6 +33,8 @@ static unsigned int max_boost_freq_lp __read_mostly =
 static unsigned int max_boost_freq_hp __read_mostly =
 	CONFIG_MAX_BOOST_FREQ_PERF;
 
+static unsigned short max_boost_enabled __read_mostly = 1;
+
 static unsigned short input_boost_duration __read_mostly =
 	CONFIG_INPUT_BOOST_DURATION_MS;
 static unsigned short wake_boost_duration __read_mostly =
@@ -45,6 +47,7 @@ module_param_named(remove_input_boost_freq_perf, boost_min_freq_hp, uint, 0644);
 module_param(max_boost_freq_lp, uint, 0644);
 module_param(max_boost_freq_hp, uint, 0644);
 
+module_param(max_boost_enabled, short, 0644);
 module_param(input_boost_duration, short, 0644);
 module_param(wake_boost_duration, short, 0644);
 
@@ -218,7 +221,7 @@ void cpu_input_boost_kick_max(unsigned int duration_ms)
 	if (!b)
 		return;
 
-	if (state_suspended)
+	if (state_suspended || max_boost_enabled != 1)
 		return;
 
 	__cpu_input_boost_kick_max(b, duration_ms);
