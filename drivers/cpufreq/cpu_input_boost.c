@@ -171,7 +171,7 @@ static void clear_stune_boost(struct boost_drv *b)
 
 static void __cpu_input_boost_kick(struct boost_drv *b)
 {
-	if (state_suspended)
+	if (get_boost_state(b) & SCREEN_OFF)
 		return;
 
 	if (!input_boost_duration)
@@ -221,7 +221,7 @@ void cpu_input_boost_kick_max(unsigned int duration_ms)
 	if (!b)
 		return;
 
-	if (state_suspended || max_boost_enabled != 1)
+	if ((get_boost_state(b) & SCREEN_OFF) || max_boost_enabled != 1)
 		return;
 
 	__cpu_input_boost_kick_max(b, duration_ms);
@@ -311,7 +311,7 @@ static int cpu_notifier_cb(struct notifier_block *nb,
 	}
 
 	/* Unboost when the screen is off */
-	if (state_suspended) {
+	if (state & SCREEN_OFF) {
 		policy->min = get_min_freq(policy);
 		clear_stune_boost(b);
 		return NOTIFY_OK;
@@ -351,13 +351,14 @@ static int fb_notifier_cb(struct notifier_block *nb,
 		return NOTIFY_OK;
 
 	/* Boost when the screen turns on and unboost when it turns off */
-	if (*blank == FB_BLANK_UNBLANK){
-		__cpu_input_boost_kick_wake(b);
+	if (*blank == FB_BLANK_UNBLANK) {
 		clear_boost_bit(b, SCREEN_OFF);
+		__cpu_input_boost_kick_wake(b);
 	}else{
 		set_boost_bit(b, SCREEN_OFF);
 		wake_up(&b->boost_waitq);
 	}
+
 	return NOTIFY_OK;
 }
 
@@ -369,7 +370,7 @@ static void cpu_input_boost_input_event(struct input_handle *handle,
 	__cpu_input_boost_kick(b);
 
 	if (type == EV_KEY && code == KEY_POWER && value == 1 &&
-	    !state_suspended)
+	    !(get_boost_state(b) & SCREEN_OFF))
 		__cpu_input_boost_kick_wake(b);
 
 	b->last_input_jiffies = jiffies;
