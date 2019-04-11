@@ -3792,7 +3792,7 @@
 			qcom,config-info = "whyred";
 			qcom,poll-ms = <0x64>;
 			qcom,therm-reset-temp = <0x73>;
-			qcom,core-limit-temp = <0x46>;
+			qcom,core-limit-temp = <0x3C>;
 			qcom,core-temp-hysteresis = <0xa>;
 			qcom,hotplug-temp = <0x69>;
 			qcom,hotplug-temp-hysteresis = <0x14>;
