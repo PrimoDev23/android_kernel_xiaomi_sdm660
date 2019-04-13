@@ -87,7 +87,7 @@ SCHED_FEAT(HISI_FILTER, true)
  * If enabled, this can be used to inform the scheduler about capacity
  * restrictions.
  */
-SCHED_FEAT(MIN_CAPACITY_CAPPING, true)
+SCHED_FEAT(MIN_CAPACITY_CAPPING, false)
 
 /*
  * Bias schedtune boosted tasks to higher capacity CPUs.
