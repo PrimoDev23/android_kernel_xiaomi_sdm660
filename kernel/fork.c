@@ -82,6 +82,7 @@
 #include <linux/cpufreq_times.h>
 #include <linux/cpu_input_boost.h>
 #include <linux/state_notifier.h>
+#include <linux/moduleparam.h>
 
 #include <linux/rtmm.h>
 
@@ -101,6 +102,10 @@ extern int unprivileged_userns_clone;
 #else
 #define unprivileged_userns_clone 0
 #endif
+
+//Max boost duration
+unsigned int max_boost_duration = 32;
+module_param(max_boost_duration, uint, 0644);
 
 /*
  * Minimum number of threads to boot the kernel
@@ -1826,7 +1831,7 @@ long _do_fork(unsigned long clone_flags,
 #ifdef CONFIG_CPU_INPUT_BOOST
 	/* Boost CPU to the max for 32 ms when userspace launches an app */
 	if (is_zygote_pid(current->pid) && cpu_input_boost_within_input(75)) {
-		cpu_input_boost_kick_max(32);
+		cpu_input_boost_kick_max(max_boost_duration);
 	}
 #endif
 
