@@ -634,6 +634,7 @@ struct mdss_dsi_ctrl_pdata {
 	int disp_err_detect_gpio;
 	struct delayed_work err_int_work;
 	bool rdy_err_detect;
+	bool err_detect_irq_en;
 };
 
 struct dsi_status_data {
