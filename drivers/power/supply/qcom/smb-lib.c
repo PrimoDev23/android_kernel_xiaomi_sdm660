@@ -72,7 +72,7 @@ bool charging = false;
 #endif
 
 #ifdef CONFIG_NIGHT_CHARGE
-unsigned int custom_icl;
+int custom_icl;
 bool reload_values;
 #endif
 
@@ -1719,18 +1719,18 @@ int smblib_get_prop_batt_capacity(struct smb_charger *chg,
 #endif
 
 #ifdef CONFIG_NIGHT_CHARGE
-	//Check if charging
-	if(charging){
+	if(custom_icl == 0){
 #ifdef CONFIG_CHARGING_LIMITER
-                        custom_icl = calculate_max_current(val->intval, stop_charge_capacity);
+                 calculate_max_current(val->intval, stop_charge_capacity);
 #else
-                        custom_icl = calculate_max_current(val->intval, 100);
+                 calculate_max_current(val->intval, 100);
 #endif
-
-		if(custom_icl > 0){
-			smblib_set_charge_param(chg, &chg->param.icl_stat, custom_icl);
-		}
-	}
+                 if(custom_icl > 0){
+                        smblib_set_charge_param(chg, &chg->param.icl_stat, custom_icl);
+                 }
+        }
+	if(charging)
+		updateBatteryStats(val->intval);
 #endif
 
 #ifdef CONFIG_CHARGING_LIMITER
@@ -1760,6 +1760,12 @@ int smblib_get_prop_batt_capacity(struct smb_charger *chg,
 
 	return rc;
 }
+
+#ifdef CONFIG_NIGHT_CHARGE
+void recalculate_current(unsigned long data){
+
+}
+#endif
 
 int smblib_get_prop_batt_status(struct smb_charger *chg,
 				union power_supply_propval *val)
@@ -1802,7 +1808,6 @@ int smblib_get_prop_batt_status(struct smb_charger *chg,
 		reload_values = true;
 		//Reset custom icl on disconnecting charger
 		if(custom_icl > 0){
-			custom_icl = 0;
 			reset_values();
 		}
 #endif
