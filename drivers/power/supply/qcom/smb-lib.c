@@ -60,8 +60,8 @@
 
 #ifdef CONFIG_CHARGING_LIMITER
 bool suspended = false;
-unsigned int stop_charge_capacity = 100;
-unsigned int continue_charge_capacity = 100;
+unsigned int stop_charge_capacity = 101;
+unsigned int continue_charge_capacity = 101;
 
 module_param(stop_charge_capacity, uint, 0644);
 module_param(continue_charge_capacity, uint, 0644);
@@ -1740,24 +1740,24 @@ int smblib_get_prop_batt_capacity(struct smb_charger *chg,
 #ifdef CONFIG_CHARGING_LIMITER
 	//Deactivate with both values to 100 or higher (disabled by defaut)
 	//Also prevents from setting too low values
-	if((stop_charge_capacity >= 100 && continue_charge_capacity >= 100) || stop_charge_capacity < 50){
+	if(stop_charge_capacity > 100 || stop_charge_capacity < 50){
 		return rc;
 	}
 
 	//If unlogical set values (continue >= stop) calculate new continue
-	if(continue_charge_capacity >= stop_charge_capacity)
+	if(stop_charge_capacity != 101 && continue_charge_capacity >= stop_charge_capacity)
 		continue_charge_capacity = stop_charge_capacity - 10;
 
 	//If capacity == stop value and phone is charging and charging isn't suspended suspend charging
 	if(val->intval == stop_charge_capacity && charging && !suspended){
 		suspend_cache.intval = 1;
 		if(smblib_set_prop_input_suspend(chg,&suspend_cache)){
-			pr_info("Charging limiter: Error while suspend charging");
+			pr_err("Charging limiter: Error while suspend charging");
 		}
 	}else if(val->intval <= continue_charge_capacity && suspended){ //If capacity is lower or equal to continue value continue charging (will also be used when reconnect charger)
 		suspend_cache.intval = 0;
 		if(smblib_set_prop_input_suspend(chg,&suspend_cache)){
-			pr_info("Charging limiter: Error while continue charging");
+			pr_err("Charging limiter: Error while continue charging");
 		}
 	}
 #endif
