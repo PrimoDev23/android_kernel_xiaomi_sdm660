@@ -220,7 +220,7 @@ static unsigned int get_next_freq(struct dugov_policy *du_policy,
 				policy->cpuinfo.max_freq : policy->cur;
 	unsigned int capacity_factor, silver_max_freq, gold_max_freq;
 
-	if(!display_on) {
+	if(!is_display_on()) {
 		capacity_factor = du_policy->tunables->suspend_capacity_factor;
 		silver_max_freq = du_policy->tunables->silver_suspend_max_freq;
 		gold_max_freq = du_policy->tunables->gold_suspend_max_freq;
@@ -240,17 +240,17 @@ static unsigned int get_next_freq(struct dugov_policy *du_policy,
 	case 1:
 	case 2:
 	case 3:
-		if(!display_on &&  silver_max_freq > 0 && silver_max_freq < freq)
+		if(!is_display_on() &&  silver_max_freq > 0 && silver_max_freq < freq)
 			return silver_max_freq;
 		break;
 	case 4:
 	case 5:
-		if(!display_on && gold_max_freq > 0 && gold_max_freq < freq)
+		if(!is_display_on() && gold_max_freq > 0 && gold_max_freq < freq)
 			return gold_max_freq;
 		break;
 	case 6:
 	case 7:
-		if(!display_on)
+		if(!is_display_on())
 			return policy->min;
 		break;
 	default:
