@@ -81,7 +81,6 @@
 #include <linux/kcov.h>
 #include <linux/cpufreq_times.h>
 #include <linux/cpu_input_boost.h>
-#include <linux/state_notifier.h>
 #include <linux/moduleparam.h>
 
 #include <linux/rtmm.h>
