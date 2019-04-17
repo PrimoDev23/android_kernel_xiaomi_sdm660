@@ -60,9 +60,6 @@
 #include <linux/cpuset.h>
 #include <linux/atomic.h>
 #include <linux/binfmts.h>
-#include <linux/cpu_input_boost.h>
-#include <linux/state_notifier.h>
-
 
 /*
  * pidlists linger the following amount before being destroyed.  The goal
