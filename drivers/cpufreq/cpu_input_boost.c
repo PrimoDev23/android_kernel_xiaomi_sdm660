@@ -13,7 +13,6 @@
 #include <linux/moduleparam.h>
 #include <linux/slab.h>
 #include <linux/version.h>
-#include <linux/state_notifier.h>
 
 /* The sched_param struct is located elsewhere in newer kernels */
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0)
