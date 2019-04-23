@@ -127,6 +127,7 @@ struct lpm_cluster {
 	int default_level;
 	int last_level;
 	uint32_t tmr_add;
+	bool lpm_prediction;
 	struct lpm_cpu *cpu;
 	struct cpuidle_driver *drv;
 	spinlock_t sync_lock;
