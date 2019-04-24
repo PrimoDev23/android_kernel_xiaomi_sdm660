@@ -79,8 +79,7 @@ module_param(backlight_min, int, 0644);
 
 //Easily enable sRGB with module param
 //Part of the sRGB reset fix!
-int srgb_enabled = 0;
-module_param(srgb_enabled, int, 0644);
+bool srgb_enabled = false;
 
 #define MAX_FBI_LIST 32
 
@@ -1000,7 +999,7 @@ int mdss_first_set_feature(struct mdss_panel_data *pdata, int first_ce_state, in
 	}
 
 	//This simply fixes sRGB reset after screen off/on
-	if(srgb_enabled == 1){
+	if(srgb_enabled){
 		first_srgb_state = 2;
 	}
 
@@ -1316,6 +1315,11 @@ static ssize_t mdss_fb_set_srgb(struct device *dev, struct device_attribute *att
 			break;
 
 	}
+
+	if(srgb_state == 2)
+		srgb_enabled = true;
+	else
+		srgb_enabled = false;
 	printk("guorui ##### srgb over ###\n");
 	return len;
 
