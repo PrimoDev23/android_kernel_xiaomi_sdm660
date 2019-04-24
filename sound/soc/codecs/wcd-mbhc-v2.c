@@ -1602,12 +1602,13 @@ enable_supply:
 	WCD_MBHC_RSC_LOCK(mbhc);
 	if (mbhc->mbhc_cb->mbhc_micbias_control)
 		wcd_mbhc_update_fsm_source(mbhc, plug_type);
-#if defined(CONFIG_KERNEL_CUSTOM_WHYRED) || defined(CONFIG_KERNEL_CUSTOM_WAYNE) || defined(CONFIG_KERNEL_CUSTOM_TULIP)
-	else{
-	      /*Add for selfie stick not work  tangshouxing 9/6*/
-	      if (mbhc->impedance_detect) {
+#if defined(CONFIG_KERNEL_CUSTOM_WHYRED) || defined(CONFIG_KERNEL_CUSTOM_WAYNE)
+	else {
+		if (mbhc->impedance_detect) {
+			WCD_MBHC_RSC_LOCK(mbhc);
 			mbhc->mbhc_cb->compute_impedance(mbhc,
 			&mbhc->zl, &mbhc->zr);
+			WCD_MBHC_RSC_UNLOCK(mbhc);
 				if ((mbhc->zl > 20000) && (mbhc->zr > 20000)) {
 					pr_debug("%s:Selfie stick device, need enable btn isrc ctrl", __func__);
 					wcd_enable_mbhc_supply(mbhc, MBHC_PLUG_TYPE_HEADSET);
