@@ -470,6 +470,8 @@ static int parse_cluster_params(struct device_node *node,
 	key = "qcom,disable-prediction";
 	c->lpm_prediction = !(of_property_read_bool(node, key));
 
+	pr_info("lpm_prediction %s for Cluster %s", c->lpm_prediction ? "Enabled" : "Disabled", c->name);
+
 	if (use_psci) {
 		key = "qcom,psci-mode-shift";
 		ret = of_property_read_u32(node, key,
