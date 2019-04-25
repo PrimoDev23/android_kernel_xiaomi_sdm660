@@ -56,6 +56,7 @@ module_param_named(dynamic_stune_boost, stune_boost, int, 0644);
 #endif
 
 /* Available bits for boost state */
+#define SCREEN_OFF		BIT(0)
 #define INPUT_BOOST		BIT(1)
 #define MAX_BOOST		BIT(2)
 #define WAKE_BOOST		BIT(3)
