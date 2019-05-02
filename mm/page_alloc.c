@@ -62,8 +62,6 @@
 #include <linux/sched/rt.h>
 #include <linux/page_owner.h>
 #include <linux/kthread.h>
-#include <linux/ktrace.h>
-#include <linux/rtmm.h>
 #include <linux/cpu_input_boost.h>
 
 #include <asm/sections.h>
@@ -3389,7 +3387,7 @@ retry_cpuset:
 		 * can deadlock because I/O on the device might not
 		 * complete.
 		 */
-		u64 start_time, end_time, duration, threshold;
+		u64 start_time, end_time, duration;
 
 		alloc_mask = memalloc_noio_flags(gfp_mask);
 		ac.spread_dirty_pages = false;
@@ -3399,14 +3397,6 @@ retry_cpuset:
 		end_time = current->stime;
 		duration = (end_time - start_time) * (NSEC_PER_SEC / HZ);
 
-		threshold = ktrace_event_slowpath_threshold();
-		if (duration > threshold && !rtmm_pool(current->comm)) {
-			pr_info("slowpath: %d(%s)(priority %d/%d) order=%d mask=0x%x, %lld ms\n",
-					current->pid, current->comm,
-					current->policy, PRIO_TO_NICE(current->static_prio),
-					order, gfp_mask, duration >> 20);
-			ktrace_event_add_slowpath(ktime_get_ns(), order, duration);
-		}
 	}
 
 	if (kmemcheck_enabled && page)

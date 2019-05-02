@@ -1650,10 +1650,6 @@ struct task_struct {
 #endif
 	int on_rq;
 
-#ifdef CONFIG_SCHED_OPT
-	int saved_nice;
-	unsigned int saved_policy;
-#endif
 	int prio, static_prio, normal_prio;
 	unsigned int rt_priority;
 	const struct sched_class *sched_class;

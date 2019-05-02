@@ -83,7 +83,6 @@
 #include <linux/cpu_input_boost.h>
 #include <linux/moduleparam.h>
 
-#include <linux/rtmm.h>
 
 #include <asm/pgtable.h>
 #include <asm/pgalloc.h>
@@ -179,12 +178,8 @@ void __weak arch_release_thread_stack(unsigned long *stack)
 static unsigned long *alloc_thread_stack_node(struct task_struct *tsk,
 						  int node)
 {
-#ifdef CONFIG_RTMM
-	struct page *page = rtmm_alloc(RTMM_POOL_THREADINFO);
-#else
 	struct page *page = alloc_kmem_pages_node(node, THREADINFO_GFP,
 						  THREAD_SIZE_ORDER);
-#endif
 
 	return page ? page_address(page) : NULL;
 }
@@ -193,15 +188,9 @@ static inline void free_thread_stack(unsigned long *stack)
 {
 	struct page *page = virt_to_page(stack);
 
-#ifdef CONFIG_RTMM
-	kasan_alloc_pages(page, THREAD_SIZE_ORDER);
-	kaiser_unmap_thread_stack(stack);
-	rtmm_free(ti, RTMM_POOL_THREADINFO);
-#else
 	kasan_alloc_pages(page, THREAD_SIZE_ORDER);
 	kaiser_unmap_thread_stack(stack);
 	__free_kmem_pages(page, THREAD_SIZE_ORDER);
-#endif
 }
 # else
 static struct kmem_cache *thread_stack_cache;
