@@ -42,6 +42,7 @@ QDF_STATUS pe_release_global_lock(tAniSirLim *psPe);
 #define eLOG_NODROP_MISSED_BEACON_SCENARIO 0
 #define eLOG_PROC_DEAUTH_FRAME_SCENARIO 1
 
+#ifdef TRACE_RECORD
 void mac_trace(tpAniSirGlobal pMac, uint8_t code, uint16_t session,
 	       uint32_t data);
 void mac_trace_new(tpAniSirGlobal pMac, uint8_t module, uint8_t code,
@@ -51,7 +52,6 @@ uint8_t *mac_trace_get_lim_msg_string(uint16_t limMsg);
 uint8_t *mac_trace_get_wma_msg_string(uint16_t wmaMsg);
 uint8_t *mac_trace_get_sme_msg_string(uint16_t smeMsg);
 uint8_t *mac_trace_get_info_log_string(uint16_t infoLog);
-
 uint8_t *mac_trace_get_neighbour_roam_state(uint16_t neighbourRoamState);
 uint8_t *mac_trace_getcsr_roam_state(uint16_t csr_roamState);
 uint8_t *mac_trace_getcsr_roam_sub_state(uint16_t csr_roamSubState);
