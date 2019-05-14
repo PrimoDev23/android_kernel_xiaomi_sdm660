@@ -93,7 +93,7 @@ SCHED_FEAT(MIN_CAPACITY_CAPPING, false)
  * Bias schedtune boosted tasks to higher capacity CPUs.
  * If disabled, no bias will be applied.
  */
-SCHED_FEAT(STUNE_BOOST_BIAS_BIG, true)
+SCHED_FEAT(STUNE_BOOST_BIAS_BIG, false)
 
 /*
  * UtilEstimation. Use estimated CPU utilization.
