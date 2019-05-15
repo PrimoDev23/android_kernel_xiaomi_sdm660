@@ -681,7 +681,7 @@
 			qcom,misc-clk-trim-error-reg = <0xf3>;
 			qcom,actuator-type = "erm";
 			qcom,play-mode = "direct";
-			qcom,vmax-mv = <3000>;
+			qcom,vmax-mv = <3500>;
 			qcom,ilim-ma = <800>;
 			qcom,wave-shape = "sine";
 			qcom,wave-play-rate-us = <7000>;
