@@ -130,6 +130,30 @@ struct page *f2fs_get_tmp_page(struct f2fs_sb_info *sbi, pgoff_t index)
 	return __get_meta_page(sbi, index, false);
 }
 
+static bool __is_bitmap_valid(struct f2fs_sb_info *sbi, block_t blkaddr,
+							int type)
+{
+	struct seg_entry *se;
+	unsigned int segno, offset;
+	bool exist;
+
+	if (type != DATA_GENERIC_ENHANCE && type != DATA_GENERIC_ENHANCE_READ)
+		return true;
+
+	segno = GET_SEGNO(sbi, blkaddr);
+	offset = GET_BLKOFF_FROM_SEG0(sbi, blkaddr);
+	se = get_seg_entry(sbi, segno);
+
+	exist = f2fs_test_bit(offset, se->cur_valid_map);
+	if (!exist && type == DATA_GENERIC_ENHANCE) {
+		f2fs_msg(sbi->sb, KERN_ERR, "Inconsistent error "
+			"blkaddr:%u, sit bitmap:%d", blkaddr, exist);
+		set_sbi_flag(sbi, SBI_NEED_FSCK);
+		WARN_ON(1);
+	}
+	return exist;
+}
+
 bool f2fs_is_valid_blkaddr(struct f2fs_sb_info *sbi,
 					block_t blkaddr, int type)
 {
@@ -151,15 +175,22 @@ bool f2fs_is_valid_blkaddr(struct f2fs_sb_info *sbi,
 			return false;
 		break;
 	case META_POR:
-	case DATA_GENERIC:
 		if (unlikely(blkaddr >= MAX_BLKADDR(sbi) ||
-			blkaddr < MAIN_BLKADDR(sbi))) {
-			if (type == DATA_GENERIC) {
-				f2fs_msg(sbi->sb, KERN_WARNING,
-					"access invalid blkaddr:%u", blkaddr);
-				WARN_ON(1);
-			}
+			blkaddr < MAIN_BLKADDR(sbi)))
 			return false;
+		break;
+	case DATA_GENERIC:
+	case DATA_GENERIC_ENHANCE:
+	case DATA_GENERIC_ENHANCE_READ:
+		if (unlikely(blkaddr >= MAX_BLKADDR(sbi) ||
+				blkaddr < MAIN_BLKADDR(sbi))) {
+			f2fs_msg(sbi->sb, KERN_WARNING,
+				"access invalid blkaddr:%u", blkaddr);
+			set_sbi_flag(sbi, SBI_NEED_FSCK);
+			WARN_ON(1);
+			return false;
+		} else {
+			return __is_bitmap_valid(sbi, blkaddr, type);
 		}
 		break;
 	case META_GENERIC:
@@ -307,8 +338,9 @@ static int f2fs_write_meta_pages(struct address_space *mapping,
 		goto skip_write;
 
 	/* collect a number of dirty meta pages and write together */
-	if (wbc->for_kupdate ||
-		get_pages(sbi, F2FS_DIRTY_META) < nr_pages_to_skip(sbi, META))
+	if (wbc->sync_mode != WB_SYNC_ALL &&
+			get_pages(sbi, F2FS_DIRTY_META) <
+					nr_pages_to_skip(sbi, META))
 		goto skip_write;
 
 	/* if locked failed, cp will flush dirty pages instead */
@@ -406,7 +438,7 @@ static int f2fs_set_meta_page_dirty(struct page *page)
 	if (!PageDirty(page)) {
 		__set_page_dirty_nobuffers(page);
 		inc_page_count(F2FS_P_SB(page), F2FS_DIRTY_META);
-		SetPagePrivate(page);
+		f2fs_set_page_private(page, 0);
 		f2fs_trace_pid(page);
 		return 1;
 	}
@@ -989,7 +1021,7 @@ void f2fs_update_dirty_page(struct inode *inode, struct page *page)
 	inode_inc_dirty_pages(inode);
 	spin_unlock(&sbi->inode_lock[type]);
 
-	SetPagePrivate(page);
+	f2fs_set_page_private(page, 0);
 	f2fs_trace_pid(page);
 }
 
@@ -1290,10 +1322,17 @@ static void update_ckpt_flags(struct f2fs_sb_info *sbi, struct cp_control *cpc)
 	else
 		__clear_ckpt_flags(ckpt, CP_DISABLED_FLAG);
 
+	if (is_sbi_flag_set(sbi, SBI_CP_DISABLED_QUICK))
+		__set_ckpt_flags(ckpt, CP_DISABLED_QUICK_FLAG);
+	else
+		__clear_ckpt_flags(ckpt, CP_DISABLED_QUICK_FLAG);
+
 	if (is_sbi_flag_set(sbi, SBI_QUOTA_SKIP_FLUSH))
 		__set_ckpt_flags(ckpt, CP_QUOTA_NEED_FSCK_FLAG);
-	else
-		__clear_ckpt_flags(ckpt, CP_QUOTA_NEED_FSCK_FLAG);
+	/*
+	 * TODO: we count on fsck.f2fs to clear this flag until we figure out
+	 * missing cases which clear it incorrectly.
+	 */
 
 	if (is_sbi_flag_set(sbi, SBI_QUOTA_NEED_REPAIR))
 		__set_ckpt_flags(ckpt, CP_QUOTA_NEED_FSCK_FLAG);
