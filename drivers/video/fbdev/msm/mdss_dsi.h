@@ -19,7 +19,6 @@
 #include <linux/irqreturn.h>
 #include <linux/pinctrl/consumer.h>
 #include <linux/gpio.h>
-#include <linux/pm_qos.h>
 
 #include "mdss_panel.h"
 #include "mdss_dsi_cmd.h"
@@ -631,8 +630,6 @@ struct mdss_dsi_ctrl_pdata {
 	wait_queue_head_t wake_waitq;
 	atomic_t disp_is_on;
 	atomic_t needs_wake;
-
-	struct pm_qos_request pm_qos_req;
 
 	int disp_err_detect_gpio;
 	struct delayed_work err_int_work;
