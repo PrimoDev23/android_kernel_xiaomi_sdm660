@@ -174,6 +174,7 @@ static void __cpu_input_boost_kick(struct boost_drv *b)
 	if (!mod_delayed_work(system_unbound_wq, &b->input_unboost,
 			      msecs_to_jiffies(input_boost_duration)))
 		wake_up(&b->boost_waitq);
+	do_prefer_idle("top-app", 1);
 }
 
 void cpu_input_boost_kick(void)
@@ -203,6 +204,7 @@ static void __cpu_input_boost_kick_max(struct boost_drv *b,
 	if (!mod_delayed_work(system_unbound_wq, &b->max_unboost,
 			      boost_jiffies))
 		wake_up(&b->boost_waitq);
+	do_prefer_idle("top-app", 1);
 }
 
 void cpu_input_boost_kick_max(unsigned int duration_ms)
@@ -241,6 +243,7 @@ static void input_unboost_worker(struct work_struct *work)
 
 	clear_bit(INPUT_BOOST, &b->state);
 	wake_up(&b->boost_waitq);
+	do_prefer_idle("top-app", 0);
 }
 
 static void max_unboost_worker(struct work_struct *work)
@@ -251,6 +254,7 @@ static void max_unboost_worker(struct work_struct *work)
 	clear_bit(MAX_BOOST, &b->state);
 	clear_bit(WAKE_BOOST, &b->state);
 	wake_up(&b->boost_waitq);
+	do_prefer_idle("top-app", 0);
 }
 
 static int cpu_thread(void *data)
