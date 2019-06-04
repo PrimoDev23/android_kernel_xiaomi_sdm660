@@ -2108,7 +2108,7 @@ void task_dirty_inc(struct task_struct *tsk);
 
 /* readahead.c */
 #ifdef CONFIG_READAHEAD
-#define VM_MAX_READAHEAD	64	/* kbytes */
+#define VM_MAX_READAHEAD	128	/* kbytes */
 #else
 #define VM_MAX_READAHEAD	0	/* kbytes */
 #endif
