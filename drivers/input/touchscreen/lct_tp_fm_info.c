@@ -19,15 +19,15 @@ static ssize_t msm_tp_module_id_show(struct device *dev,
 
     char tp_version[60] = {0};
 
-    if ((0 == tp_ver_show) && (0 == strlen(tp_ver_show_str)))
-        strcpy(tp_version, "no tp");
+    if((0 == tp_ver_show) && (0 == strlen(tp_ver_show_str)))
+        strcpy(tp_version,"no tp");
     else
     {
         sprintf(tp_version, "[Vendor]%s,%s\n", (strlen(module_name) ? module_name : "Unknown"),
 				(strlen(tp_ver_show_str) ? tp_ver_show_str : "Unknown product"));
     }
-
-	sprintf(buf, "%s\n", tp_version);
+	
+	sprintf(buf, "%s", tp_version);
 	rc = strlen(buf) + 1;
 
 	return rc;
@@ -55,12 +55,12 @@ static int tp_fm_creat_sys_entry(void)
 
 static ssize_t tp_proc_tp_info_read(struct file *file, char __user *buf, size_t size, loff_t *ppos)
 {
-    int cnt = 0;
+    int cnt=0;
     char *page = NULL;
 
 	page = kzalloc(128, GFP_KERNEL);
 
-    if ((0 == strlen(module_name)) && (0 == tp_ver_show) && (0 == strlen(tp_ver_show_str)))
+    if((0 == strlen(module_name)) && (0 == tp_ver_show) && (0 == strlen(tp_ver_show_str)))
         cnt = sprintf(page, "no tp\n");
 	else
 	{
@@ -71,7 +71,7 @@ static ssize_t tp_proc_tp_info_read(struct file *file, char __user *buf, size_t 
 
 	cnt = simple_read_from_buffer(buf, size, ppos, page, cnt);
 
-
+	
 	kfree(page);
     return cnt;
 }
@@ -93,7 +93,7 @@ static int tp_fm_creat_proc_entry(void)
     return 0;
 }
 
-int init_tp_fm_info(u16 version_info_num, char *version_info_str, char *name)
+int init_tp_fm_info(u16 version_info_num, char* version_info_str, char *name)
 {
     tp_ver_show = version_info_num;
 
@@ -108,7 +108,7 @@ int init_tp_fm_info(u16 version_info_num, char *version_info_str, char *name)
     return 0;
 }
 
-void update_tp_fm_info(char *version_info_str)
+void update_tp_fm_info(char* version_info_str)
 {
     if (NULL != version_info_str) {
 		memset(tp_ver_show_str, 0, sizeof(tp_ver_show_str));
