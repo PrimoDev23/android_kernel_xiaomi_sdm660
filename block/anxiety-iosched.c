@@ -82,26 +82,6 @@ static void anxiety_add_request(struct request_queue *q, struct request *rq)
 	list_add_tail(&rq->queuelist, &((struct anxiety_data *) q->elevator->elevator_data)->queue[dir]);
 }
 
-static struct request *anxiety_former_request(struct request_queue *q, struct request *rq)
-{
-	const uint8_t dir = rq_data_dir(rq) || (rq->cmd_flags & REQ_SYNC);
-
-	if (rq->queuelist.prev == &((struct anxiety_data *) q->elevator->elevator_data)->queue[dir])
-		return NULL;
-
-	return list_prev_entry(rq, queuelist);
-}
-
-static struct request *anxiety_latter_request(struct request_queue *q, struct request *rq)
-{
-	const uint8_t dir = rq_data_dir(rq) || (rq->cmd_flags & REQ_SYNC);
-
-	if (rq->queuelist.next == &((struct anxiety_data *) q->elevator->elevator_data)->queue[dir])
-		return NULL;
-
-	return list_next_entry(rq, queuelist);
-}
-
 static int fb_notifier_callback(struct notifier_block *self,
 				unsigned long event, void *data)
 {
@@ -222,8 +202,8 @@ static struct elevator_type elevator_anxiety = {
 		.elevator_merge_req_fn	= anxiety_merged_requests,
 		.elevator_dispatch_fn	= anxiety_dispatch,
 		.elevator_add_req_fn	= anxiety_add_request,
-		.elevator_former_req_fn	= anxiety_former_request,
-		.elevator_latter_req_fn	= anxiety_latter_request,
+		.elevator_former_req_fn	= elv_rb_former_request,
+		.elevator_latter_req_fn	= elv_rb_latter_request,
 		.elevator_init_fn	= anxiety_init_queue,
 		.elevator_exit_fn	= anxiety_exit_queue,
 	},
