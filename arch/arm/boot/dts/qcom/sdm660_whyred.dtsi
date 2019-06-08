@@ -488,6 +488,14 @@
 		       reg = <0 0x9f7ff000 0 0x00001000>;
 		       label = "dfps_data_mem";
 		};
+
+		pstore_reserve_mem: pstore_reserve_mem_region@0 {
+			linux,reserve-contiguous-region;
+			linux,reserve-region;
+			linux,remove-completely;
+			reg = <0x0 0xA0000000 0x0 0x00400000>;
+			label = "pstore_reserve_mem";
+		};
 	};
 
 	bluetooth: bt_wcn3990 {
@@ -944,7 +952,7 @@
 		qcom,bcl-enable;
 		qcom,bcl-framework-interface;
 		qcom,bcl-hotplug-list = <&CPU6 &CPU7>;
-		qcom,bcl-soc-hotplug-list = <&CPU4 &CPU5>;
+		qcom,bcl-soc-hotplug-list = <&CPU4 &CPU5 &CPU6 &CPU7>;
 		qcom,ibat-monitor {
 			qcom,low-threshold-uamp = <3400000>;
 			qcom,high-threshold-uamp = <4200000>;
@@ -1293,11 +1301,9 @@
 		qcom,cpulist = <&CPU0 &CPU1 &CPU2 &CPU3>;
 		qcom,target-dev = <&memlat_cpu0>;
 		qcom,core-dev-table =
-			< 300000 381 >,
 			< 902400 762 >,
 			< 1401600 2086 >,
-			< 1747200 3879 >,
-			< 1843200 3879 >;
+			< 1881600 3879 >;
 	};
 
 	devfreq_memlat_4: qcom,arm-memlat-mon-4 {
@@ -1305,12 +1311,10 @@
 		qcom,cpulist = <&CPU4 &CPU5 &CPU6 &CPU7>;
 		qcom,target-dev = <&memlat_cpu4>;
 		qcom,core-dev-table =
-			< 633600 572 >,
-			< 902400 762 >,
 			< 1113600 762 >,
 			< 1401600 3879 >,
-			< 1958400 5163 >,
-			< 2150400 5931 >;
+			< 2150400 5931 >,
+			< 2457600 6881 >;
 	};
 
 	devfreq_cpufreq: devfreq-cpufreq {
@@ -1319,16 +1323,13 @@
 			cpu-to-dev-map-0 =
 				< 633600 762 >,
 				< 1401600 1571 >,
-				< 1747200 2929 >,
-	                        < 1843200 2929 >;
+				< 1881600 2929 >;
 			cpu-to-dev-map-4 =
-				< 633600 572 >,
-				< 902400 762 >,
 				< 1113600 762 >,
 				< 1401600 2086 >,
 				< 1747200 2929 >,
-	                        < 1958400 3879 >,
-				< 2150400 3879 >;
+				< 2150400 3879 >,
+				< 2457600 6881 >;
 		};
 	};
 
@@ -1462,7 +1463,6 @@
 		qcom,cpufreq-table-0 =
 			< 1401600 >,
 			< 1536000 >,
-			< 1612800 >,
 			< 1747200 >,
 			< 1843200 >;
 
