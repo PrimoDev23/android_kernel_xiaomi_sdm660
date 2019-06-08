@@ -78,8 +78,9 @@ static int anxiety_dispatch(struct request_queue *q, int force)
 static void anxiety_add_request(struct request_queue *q, struct request *rq)
 {
 	const uint8_t dir = rq_data_dir(rq) || (rq->cmd_flags & REQ_SYNC);
+	struct anxiety_data *adata = q->elevator->elevator_data;
 
-	list_add_tail(&rq->queuelist, &((struct anxiety_data *) q->elevator->elevator_data)->queue[dir]);
+	list_add_tail(&rq->queuelist, &adata->queue[dir]);
 }
 
 static int fb_notifier_callback(struct notifier_block *self,
